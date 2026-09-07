@@ -17,6 +17,7 @@
   --animate-rise: bwRise 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-rise-late: bwRise 1.3s 0.15s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-rise-later: bwRise 1.3s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-player-in: bwPlayerIn 0.9s 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 @theme inline {
@@ -45,6 +46,15 @@
 @keyframes bwBlink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.25; }
+}
+@keyframes bwPlayerIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+/* Equaliser bars in the audio player; each bar gets its own duration and delay. */
+@keyframes bwBar {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
 }
 
 @layer base {

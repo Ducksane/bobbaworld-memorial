@@ -23,6 +23,15 @@
       }
     }
   },
+  "Player": {
+    "label": "Audio player",
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next track",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "position": "Position"
+  },
   "Hero": {
     "badge": "Memorial · 2007 — 2015",
     "domain": "bobbaworld.fr",

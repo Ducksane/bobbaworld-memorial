@@ -16,7 +16,8 @@ export function SiteFooter() {
 
   return (
     <footer>
-      <Container className="flex flex-col gap-9 pt-20 pb-14">
+      {/* The bottom padding clears the fixed audio player: 64px tall, 20px off the bottom. */}
+      <Container className="flex flex-col gap-9 pt-20 pb-[140px]">
         <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-6 border-t border-cream/14 pt-9">
           <Image
             src="/images/logocolour.png"

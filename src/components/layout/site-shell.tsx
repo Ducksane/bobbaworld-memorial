@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
+import { AudioPlayer } from "@/components/audio/audio-player";
 import { StarField } from "@/components/effects/star-field";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SkipLink } from "@/components/layout/skip-link";
@@ -28,6 +29,7 @@ export function SiteShell({ lang, children }: SiteShellProps) {
             </main>
             <SiteFooter />
           </div>
+          <AudioPlayer />
         </NextIntlClientProvider>
       </body>
     </html>
