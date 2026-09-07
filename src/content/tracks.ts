@@ -14,4 +14,9 @@ export const tracks: readonly Track[] = [
     title: "BobbaWorld Memorial",
     src: "/audio/bobbaworld-memorial.mp3",
   },
+  {
+    id: "memorial-symphony",
+    title: "BobbaWorld Memorial — Symphony",
+    src: "/audio/bobbaworld-memorial-symphony.mp3",
+  },
 ];
