@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mémorial BobbaWorld
 
-## Getting Started
+Page mémorial de BobbaWorld (2007 — 2015), construite avec Next.js 16, React 19, Tailwind CSS 4 et next-intl.
 
-First, run the development server:
+## Démarrer
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `/` — version française (langue par défaut)
+- `/en` — version anglaise
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Variables d’environnement : voir `.env.example`. `NEXT_PUBLIC_SITE_URL` fixe l’URL canonique (OpenGraph, sitemap, hreflang). Sans cette variable, la production utilise `https://bobbaworld.fr`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure
 
-## Learn More
+```
+messages/                 Textes par langue (fr.json = référence, en.json)
+public/
+  icons/                  Favicons PNG (16 → 512)
+  images/                 Visuels du design (fond du hero, logo)
+  favicon.ico, og.png     Favicon et image OpenGraph
+src/
+  app/
+    [locale]/             Layout racine (metadata), page d’accueil, erreur
+    global-not-found.tsx  404 des URL inconnues (rendue hors layout, document complet)
+    fonts.ts              Polices next/font partagées
+    manifest.ts           Web manifest
+    robots.ts, sitemap.ts SEO (sitemap avec alternates par langue)
+    globals.css           Tokens de marque (@theme), keyframes, styles de base
+  components/
+    effects/              Ciel étoilé, parallaxe, apparition au scroll
+    home/                 Sections de la page d’accueil (hero, chronologie, citation, Discord)
+    layout/               Coquille du document, pied de page, sélecteur de langue, 404
+    seo/                  JSON-LD
+    ui/                   Primitives (Container, ButtonLink, PixelLabel)
+  config/site.ts          Nom, URL, liens externes, couleurs de marque
+  content/timeline.ts     Données structurelles de la chronologie (dates, ids)
+  i18n/                   Routing next-intl, navigation, chargement des messages
+  lib/                    Helpers SEO (alternates, JSON-LD)
+  proxy.ts                Proxy next-intl (détection du préfixe de langue)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Internationalisation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Les locales sont déclarées dans `src/i18n/routing.ts` (`fr` par défaut, préfixe seulement pour `en`).
+- Les textes vivent dans `messages/<locale>.json`, organisés par composant. `messages/fr.json` sert de référence de typage : toute clé ajoutée en FR doit exister en EN.
+- Composants serveur : `useTranslations()` / `getTranslations()`. Composants client : `useTranslations()` sous `NextIntlClientProvider` (déjà en place dans le layout).
+- Liens internes : importer `Link` depuis `@/i18n/navigation` pour conserver la langue courante.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Ajouter une page (ex. blog)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Créer la route sous `src/app/[locale]/blog/…`.
+2. Exporter un `generateMetadata` qui retourne `alternates: await localizedAlternates("/blog")` (helper dans `src/lib/seo.ts`).
+3. Ajouter le chemin dans `src/app/sitemap.ts`.
+4. Ajouter les textes dans `messages/fr.json` puis `messages/en.json`.

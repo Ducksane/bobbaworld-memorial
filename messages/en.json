@@ -1,0 +1,129 @@
+{
+  "Metadata": {
+    "title": "BobbaWorld: It’s your world.",
+    "titleTemplate": "%s — BobbaWorld",
+    "description": "BobbaWorld (bobbaworld.fr) was a French Habbo retro server, a free and independent private server launched in May 2007 by TheStaff as BobbaVille and opened to the public in June 2007 as BobbaWorld. Version 2.0 in 2011, version 2.5 announced in 2013, closure of 2.0 in 2015, relaunch in 2016-2017. Over 1,500 players online at the same time at its peak. Memorial page, community on Discord.",
+    "ogDescription": "BobbaWorld was a free, independent French Habbo retro server that opened in 2007. Its story, its dates, and the community that lives on through Discord.",
+    "ogImageAlt": "BobbaWorld — It’s your world. Memorial 2007 — 2015"
+  },
+  "Organization": {
+    "description": "BobbaWorld was a French Habbo retro server (independent private server, fully free catalogue) launched in May 2007 by TheStaff as BobbaVille, then opened to the public in June 2007 as BobbaWorld. Version 2.0 launched in 2011; version 2.5 announced on April 8, 2013 and opened in beta on August 11, 2014; version 2.0 closed in 2015; relaunched in 2016-2017. Over 1,500 players online at the same time at its peak. The community now gathers on Discord."
+  },
+  "Layout": {
+    "skipToContent": "Skip to content",
+    "localeSwitcher": {
+      "label": "Language",
+      "names": {
+        "fr": "Français",
+        "en": "English"
+      },
+      "short": {
+        "fr": "FR",
+        "en": "EN"
+      }
+    }
+  },
+  "Hero": {
+    "badge": "Memorial · 2007 — 2015",
+    "domain": "bobbaworld.fr",
+    "tagline": "It’s your world.",
+    "title": "BobbaWorld",
+    "description": "BobbaWorld was a French-speaking online virtual world inspired by the game Habbo. Launched in May 2007, it closed in 2015. This page exists so that what it was is not forgotten.",
+    "ctaDiscord": "Join the Discord",
+    "ctaStory": "Read the story"
+  },
+  "Timeline": {
+    "label": "Timeline · 2007 → 2025",
+    "entries": {
+      "opening": {
+        "date": "May 2007",
+        "title": "BobbaVille",
+        "body": "It all starts as BobbaVille, an invite-only server opened to a first circle of players."
+      },
+      "bobbaworld": {
+        "date": "June",
+        "title": "BobbaWorld opens to the public",
+        "body": "BobbaVille becomes BobbaWorld and opens to everyone: a version very faithful to Habbo, with its entire catalogue available for free."
+      },
+      "v2": {
+        "date": "April",
+        "title": "Version 2.0",
+        "body": "A major update to the website to get closer to the most recent version of Habbo, dropping Shockwave in favour of Adobe Flash. BobbaWorld quickly establishes itself as one of the major French retro servers and, at its peak, gathers more than 1,500 players online at the same time — enough to require a queue to get onto the server."
+      },
+      "v25Announced": {
+        "date": "April 8",
+        "title": "2.5 announced",
+        "body": "Two years after 2.0, the team officially announces version 2.5 and opens the <em>Behind the World</em> blog to involve players in its development: a new interface, a redesigned help system, limited-edition furniture."
+      },
+      "blackout": {
+        "date": "April 24, 2013",
+        "title": "The black out",
+        "body": "In support of a fellow server targeted by Sulake for €500,000, BobbaWorld goes dark for a “black out”."
+      },
+      "v25Beta": {
+        "date": "August 11",
+        "title": "2.5 beta",
+        "body": "The new version opens in early access to a limited number of beta testers. Designed to be the most complete version and the closest to Habbo’s content, it runs up against the high pace at which new content lands on Habbo, which makes a public release hard to reach."
+      },
+      "closure": {
+        "date": "October",
+        "title": "End of version 2.0",
+        "body": "The Habbo private server scene, once a world of mutual help and sharing, has turned into a business. BobbaWorld’s creator, TheStaff, regularly receives threats, attempts to uncover their identity, formal notices. When passionate developers who helped keep BobbaWorld alive end up dragged to court, TheStaff chooses to close BobbaWorld."
+      },
+      "relaunch": {
+        "date": "May 14",
+        "title": "The relaunch",
+        "body": "After two years of silence, the developers’ blog comes back to life and announces a very large update. Urged from all sides, TheStaff relaunches BobbaWorld to finally deliver the long-awaited 2.5 in early access."
+      },
+      "secondClosure": {
+        "date": "June",
+        "title": "The second closure",
+        "body": "Technical problems slow the 2.5 down and, following a betrayal by a key member of the team, BobbaWorld closes a second time."
+      },
+      "legacy": {
+        "date": "Ten years later",
+        "title": "What remains",
+        "body": "Ten years after the closure of 2.0, eighteen years after the first version, the memory of BobbaWorld lives on. Every offer to buy it or relaunch it for money has been turned down: BobbaWorld was never meant to make a profit."
+      }
+    },
+    "quotes": {
+      "opening": {
+        "text": "“I wasn’t the first to try this, but I never imagined that over the years this passion would turn BobbaWorld into a true reference.”",
+        "author": "— TheStaff, 2025"
+      }
+    }
+  },
+  "Quote": {
+    "text": "“At first, all I wanted was a community where everyone could let their imagination run free.”",
+    "author": "— TheStaff, 2025"
+  },
+  "Discord": {
+    "label": "The community lives on",
+    "title": "Former players meet up on Discord.",
+    "body": "Stories, memories, screenshots and reunions: the <strong>BobbaWorld – Public</strong> server is where the memory of BobbaWorld is passed on.",
+    "cta": "Join the Discord"
+  },
+  "Footer": {
+    "logoAlt": "Bobba logo",
+    "navLabel": "Links",
+    "links": {
+      "discord": "Discord",
+      "twitter": "@BobbaWorldFR",
+      "youtube": "YouTube",
+      "wayback": "Wayback Machine"
+    },
+    "disclaimer": "BobbaWorld was an independent project, unaffiliated with Sulake. Habbo is a registered trademark of Sulake Oy."
+  },
+  "NotFound": {
+    "label": "Error 404",
+    "title": "Page not found",
+    "description": "This page doesn’t exist or has been moved.",
+    "backHome": "Back to home"
+  },
+  "Error": {
+    "label": "Error",
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. You can try again.",
+    "retry": "Try again"
+  }
+}
