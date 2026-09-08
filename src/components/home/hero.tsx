@@ -9,7 +9,9 @@ export function Hero() {
   const t = useTranslations("Hero");
 
   return (
-    <header className="relative flex min-h-screen flex-col justify-end px-[5vw] pb-[8vh]">
+    // The bottom padding has a 130px floor so the buttons clear the fixed player
+    // (64px tall, 20px up) on short viewports, where 8vh alone is not enough.
+    <header className="relative flex min-h-screen flex-col justify-end px-[5vw] pb-[max(8vh,130px)]">
       <ParallaxLayer
         factor={0.32}
         aria-hidden

@@ -18,6 +18,12 @@
   --animate-rise-late: bwRise 1.3s 0.15s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-rise-later: bwRise 1.3s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-player-in: bwPlayerIn 0.9s 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  /* Duration is set inline, from the measured distance, to keep a constant speed. */
+  --animate-marquee: bwMarquee 12s ease-in-out infinite alternate;
+  /* Duration is set inline, from PEEK_MS, so the timer and the animation agree. */
+  --animate-duck-peek: bwDuckPeek 9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-duck-poof: bwDuckPoof 380ms cubic-bezier(0.5, 0, 0.75, 0) both;
+  --animate-shoot-burst: bwShootBurst 1.4s ease-in both;
 }
 
 @theme inline {
@@ -51,15 +57,71 @@
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: none; }
 }
+/* Slides a track title too long for the player across and back, holding at each
+   end. `alternate` supplies the return leg; `--bw-marquee-shift` is the measured
+   overflow, so the title never travels further than it has to. */
+@keyframes bwMarquee {
+  0%, 18% { transform: translateX(0); }
+  82%, 100% { transform: translateX(calc(-1 * var(--bw-marquee-shift, 0px))); }
+}
 /* Equaliser bars in the audio player; each bar gets its own duration and delay. */
 @keyframes bwBar {
   0%, 100% { transform: scaleY(0.25); }
   50% { transform: scaleY(1); }
 }
 
+/* The duck leans in from the edge, sways, then slips back out. `--bw-duck-out`
+   and `--bw-duck-in` are offsets of its own width, so the same keyframes serve
+   every corner. */
+@keyframes bwDuckPeek {
+  0% { opacity: 0; transform: translateX(var(--bw-duck-out)) rotate(0deg); }
+  8% { opacity: 1; }
+  14% { transform: translateX(var(--bw-duck-in)) rotate(var(--bw-duck-tilt)); }
+  42% { transform: translateX(var(--bw-duck-in)) rotate(calc(var(--bw-duck-tilt) * 0.35)); }
+  70% { transform: translateX(var(--bw-duck-in)) rotate(var(--bw-duck-tilt)); }
+  92% { opacity: 1; transform: translateX(var(--bw-duck-in)) rotate(calc(var(--bw-duck-tilt) * 0.35)); }
+  100% { opacity: 0; transform: translateX(var(--bw-duck-out)) rotate(0deg); }
+}
+/* The duck's exit, once the shake is over and the sky opens. It starts from the
+   resting pose of `bwDuckPeek`, so swapping animations does not snap. */
+@keyframes bwDuckPoof {
+  from {
+    opacity: 1;
+    transform: translateX(var(--bw-duck-in)) rotate(var(--bw-duck-tilt)) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(var(--bw-duck-out)) rotate(0deg) scale(0.7);
+  }
+}
+@keyframes bwShake {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  10% { transform: translate3d(-7px, 3px, 0) rotate(-0.5deg); }
+  20% { transform: translate3d(6px, -4px, 0) rotate(0.45deg); }
+  30% { transform: translate3d(-8px, -2px, 0) rotate(-0.4deg); }
+  45% { transform: translate3d(7px, 4px, 0) rotate(0.35deg); }
+  60% { transform: translate3d(-5px, -3px, 0) rotate(-0.25deg); }
+  75% { transform: translate3d(4px, 2px, 0) rotate(0.18deg); }
+  90% { transform: translate3d(-2px, -1px, 0) rotate(-0.08deg); }
+}
+/* One streak of the quack's meteor shower. The static angle uses `rotate` rather
+   than `transform`, which the travel below needs for itself. */
+@keyframes bwShootBurst {
+  0% { opacity: 0; transform: translate(0, 0); }
+  8% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--bw-shoot-x), var(--bw-shoot-y)); }
+}
+
 @layer base {
   :root {
     color-scheme: dark;
+  }
+
+  /* Eases the in-page anchors, such as the hero's "read the story" button. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   a {
@@ -80,6 +142,16 @@
 }
 
 @layer components {
+  /* The quack rattles the page. The animation sits on the layers marked
+     `data-quake` rather than on `<body>`: a transform there would make it the
+     containing block for the fixed star field and audio player, and they would
+     jump out of the viewport for as long as the shake lasted. The player is
+     left out on purpose — restoring its `animate-player-in` afterwards would
+     replay the entrance and blank it for a second. */
+  [data-quack] [data-quake] {
+    animation: bwShake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
   /* Scroll-triggered reveal, driven by the <Reveal> component. */
   [data-reveal] {
     transition:

@@ -67,6 +67,7 @@ export function StarField({ density = 1 }: StarFieldProps) {
   return (
     <div
       aria-hidden
+      data-quake
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
     >
       {LAYERS.map((layer, index) => (

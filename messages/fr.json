@@ -32,6 +32,9 @@
     "unmute": "Réactiver le son",
     "position": "Position"
   },
+  "Duck": {
+    "label": "Faire couiner le canard"
+  },
   "Hero": {
     "badge": "Mémorial · 2007 — 2015",
     "domain": "bobbaworld.fr",
@@ -105,6 +108,17 @@
   "Quote": {
     "text": "« À la base, je ne voulais qu’une communauté où chacun pouvait laisser libre cours à son imagination. »",
     "author": "— TheStaff, 2025"
+  },
+  "Memories": {
+    "label": "Souvenirs",
+    "title": "Ce que les joueurs en gardent.",
+    "intro": "Des mots laissés par ceux qui ont vécu BobbaWorld. Pour ajouter le vôtre, passez par le Discord.",
+    "role": "{gender, select, female {Joueuse} other {Joueur}}",
+    "roleWithYear": "{gender, select, female {Joueuse} other {Joueur}} · {year}",
+    "entries": {
+      "right": "BobbaWorld, que de bons souvenirs, et même aujourd’hui, à la trentaine, je m’en souviens comme si c’était hier.",
+      "xxbella": "BobbaWorld c’était une vraie dinguerie, je me rappelle encore de mes appartements remplis de rares, des heures de connexion passées dedans, j’étais jeune à l’époque et c’était pour moi un moyen de me déconnecter totalement et de plonger dans cet univers magique."
+    }
   },
   "Discord": {
     "label": "La communauté continue",

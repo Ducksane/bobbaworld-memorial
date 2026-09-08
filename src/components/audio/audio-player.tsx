@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
 import { useTranslations } from "next-intl";
 import { tracks } from "@/content/tracks";
 
@@ -9,6 +16,10 @@ const STORAGE_KEY = "bw-player";
 const SEEK_STEP = 5;
 /** Per-bar animation duration of the equaliser, in seconds. */
 const BAR_DURATIONS = [0.9, 0.5, 1.1, 0.7];
+/** Scroll speed of a title too long to fit, in px per second. */
+const MARQUEE_SPEED = 16;
+/** Share of a leg spent moving; the remainder is the pause at either end. */
+const MARQUEE_TRAVEL = 0.64;
 
 type SavedState = {
   track: number;
@@ -61,6 +72,8 @@ function formatTime(seconds: number) {
 export function AudioPlayer() {
   const t = useTranslations("Player");
   const audioRef = useRef<HTMLAudioElement>(null);
+  const titleFrameRef = useRef<HTMLSpanElement>(null);
+  const titleRef = useRef<HTMLSpanElement>(null);
   /** Position to restore once the track reports its duration; cleared after seeking. */
   const resumeAt = useRef(0);
 
@@ -69,6 +82,8 @@ export function AudioPlayer() {
   const [muted, setMuted] = useState(false);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  /** How far the title overflows its frame; 0 when it fits and is simply truncated. */
+  const [marqueeShift, setMarqueeShift] = useState(0);
 
   // `src` is set here rather than in JSX: assigning the attribute on every
   // render would restart the resource selection algorithm and cut playback off.
@@ -85,6 +100,29 @@ export function AudioPlayer() {
     setMuted(saved?.muted ?? false);
     setTime(resumeAt.current);
   }, []);
+
+  // Narrow viewports cut long titles off, so slide them across and back instead.
+  // The measured element is the same in both states and never wraps, so switching
+  // the marquee on cannot change the measurement and make the two states fight.
+  useEffect(() => {
+    const frame = titleFrameRef.current;
+    if (!frame) return;
+    // Under reduced motion the title stays put and truncates: the global
+    // `animation-duration` override would otherwise snap it to the end.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const measure = () => {
+      const natural = titleRef.current?.scrollWidth;
+      if (natural === undefined) return;
+      const overflow = natural - frame.clientWidth;
+      setMarqueeShift(overflow > 1 ? overflow : 0);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, [index]);
 
   const persist = (next: Partial<SavedState> = {}) => {
     const audio = audioRef.current;
@@ -227,8 +265,28 @@ export function AudioPlayer() {
                 />
               ))}
             </span>
-            <span className="truncate text-[14px] font-semibold text-paper">
-              {tracks[index].title}
+            <span
+              ref={titleFrameRef}
+              className="min-w-0 flex-1 overflow-hidden text-[14px] font-semibold text-paper"
+            >
+              <span
+                ref={titleRef}
+                className={
+                  marqueeShift > 0
+                    ? "block w-max animate-marquee whitespace-nowrap"
+                    : "block truncate"
+                }
+                style={
+                  marqueeShift > 0
+                    ? ({
+                        "--bw-marquee-shift": `${marqueeShift}px`,
+                        animationDuration: `${marqueeShift / MARQUEE_SPEED / MARQUEE_TRAVEL}s`,
+                      } as CSSProperties)
+                    : undefined
+                }
+              >
+                {tracks[index].title}
+              </span>
             </span>
           </div>
           <span className="flex-none font-pixel text-[9px] tracking-[.14em] text-cream/55">

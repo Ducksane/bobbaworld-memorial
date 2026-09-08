@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { DiscordCta } from "@/components/home/discord-cta";
 import { Hero } from "@/components/home/hero";
+import { Memories } from "@/components/home/memories";
 import { Quote } from "@/components/home/quote";
 import { Timeline } from "@/components/home/timeline";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -23,6 +24,7 @@ export default async function HomePage() {
       <Hero />
       <Timeline />
       <Quote />
+      <Memories />
       <DiscordCta />
     </>
   );

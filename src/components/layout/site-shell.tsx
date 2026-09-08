@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { AudioPlayer } from "@/components/audio/audio-player";
+import { DuckEasterEgg } from "@/components/effects/duck-easter-egg";
 import { StarField } from "@/components/effects/star-field";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SkipLink } from "@/components/layout/skip-link";
@@ -23,13 +24,17 @@ export function SiteShell({ lang, children }: SiteShellProps) {
         <NextIntlClientProvider>
           <SkipLink />
           <StarField />
-          <div className="relative z-[1] flex flex-1 flex-col overflow-x-hidden">
+          <div
+            data-quake
+            className="relative z-[1] flex flex-1 flex-col overflow-x-hidden"
+          >
             <main id="main" className="flex flex-1 flex-col">
               {children}
             </main>
             <SiteFooter />
           </div>
           <AudioPlayer />
+          <DuckEasterEgg />
         </NextIntlClientProvider>
       </body>
     </html>

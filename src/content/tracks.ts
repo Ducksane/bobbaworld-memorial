@@ -19,4 +19,9 @@ export const tracks: readonly Track[] = [
     title: "BobbaWorld Memorial — Symphony",
     src: "/audio/bobbaworld-memorial-symphony.mp3",
   },
+  {
+    id: "just-like-you",
+    title: "A Bobba Just Like You",
+    src: "/audio/a-bobba-just-like-you.mp3",
+  },
 ];
