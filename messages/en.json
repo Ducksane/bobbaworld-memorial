@@ -113,11 +113,12 @@
     "label": "Memories",
     "title": "What the players kept.",
     "intro": "Words left by those who lived BobbaWorld. To add yours, come by the Discord.",
-    "role": "Player",
-    "roleWithYear": "Player · {year}",
+    "role": "{role, select, staff {Staff} other {Player}}",
+    "roleWithYear": "{role, select, staff {Staff} other {Player}} · {year}",
     "entries": {
       "right": "BobbaWorld, so many good memories — even now, in my thirties, I remember it like it was yesterday.",
-      "xxbella": "BobbaWorld was absolutely wild, I still remember my flats packed with rares, hours and hours logged in — I was young back then and it was my way to switch off completely and dive into that magical world."
+      "xxbella": "BobbaWorld was absolutely wild, I still remember my flats packed with rares, hours and hours logged in — I was young back then and it was my way to switch off completely and dive into that magical world.",
+      "redshark": "BW was, without question, a big part of our teenage years and our early adult lives. Incredible friendships that have lasted ever since, and moments of joy too. For a while, that game let us forget the worries that were eating away at us. It was an immense privilege to be able to contribute, both on the staff and as a player. We will remember it for the rest of our lives."
     }
   },
   "Discord": {

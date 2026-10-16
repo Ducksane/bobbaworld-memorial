@@ -6,7 +6,7 @@
  * `Memories.entries` in `messages/fr.json` and `messages/en.json`.
  */
 export type Memory = {
-  id: "right" | "xxbella";
+  id: "right" | "xxbella" | "redshark";
   /** Display name. A proper noun, so it stays out of the message files. */
   pseudo: string;
   /**
@@ -19,6 +19,8 @@ export type Memory = {
   year?: string;
   /** Drives the French "Joueur"/"Joueuse" label. Masculine when left out. */
   gender?: "female";
+  /** Shown instead of "Joueur"/"Player" for members of the team. */
+  role?: "staff";
 };
 
 /** Blank Habbo figure, same 64x110 frame as habbo-imaging, for players with no avatar. */
@@ -27,4 +29,5 @@ export const GHOST_AVATAR = "/images/ghost.png";
 export const memories: readonly Memory[] = [
   { id: "right", pseudo: "Right" },
   { id: "xxbella", pseudo: "XxbellaXx", gender: "female" },
+  { id: "redshark", pseudo: "Redshark", role: "staff" },
 ];

@@ -113,11 +113,12 @@
     "label": "Souvenirs",
     "title": "Ce que les joueurs en gardent.",
     "intro": "Des mots laissés par ceux qui ont vécu BobbaWorld. Pour ajouter le vôtre, passez par le Discord.",
-    "role": "{gender, select, female {Joueuse} other {Joueur}}",
-    "roleWithYear": "{gender, select, female {Joueuse} other {Joueur}} · {year}",
+    "role": "{role, select, staff {Staff} other {{gender, select, female {Joueuse} other {Joueur}}}}",
+    "roleWithYear": "{role, select, staff {Staff} other {{gender, select, female {Joueuse} other {Joueur}}}} · {year}",
     "entries": {
       "right": "BobbaWorld, que de bons souvenirs, et même aujourd’hui, à la trentaine, je m’en souviens comme si c’était hier.",
-      "xxbella": "BobbaWorld c’était une vraie dinguerie, je me rappelle encore de mes appartements remplis de rares, des heures de connexion passées dedans, j’étais jeune à l’époque et c’était pour moi un moyen de me déconnecter totalement et de plonger dans cet univers magique."
+      "xxbella": "BobbaWorld c’était une vraie dinguerie, je me rappelle encore de mes appartements remplis de rares, des heures de connexion passées dedans, j’étais jeune à l’époque et c’était pour moi un moyen de me déconnecter totalement et de plonger dans cet univers magique.",
+      "redshark": "BW fait incontestablement partie d’une grande partie de notre adolescence et de notre vie de jeune adulte. Des rencontres incroyables qui durent depuis, des moments de joie aussi. Ce jeu nous a permis d’oublier, le temps d’un instant, les soucis qui nous rongeaient. Cela a été un immense privilège d’avoir pu apporter ma contribution, tant dans le staff que comme joueur. On s’en rappellera toute notre vie."
     }
   },
   "Discord": {

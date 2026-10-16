@@ -2,7 +2,12 @@ import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/effects/reveal";
 import { Container } from "@/components/ui/container";
 import { PixelLabel } from "@/components/ui/pixel-label";
-import { GHOST_AVATAR, memories } from "@/content/memories";
+import { GHOST_AVATAR, memories, type Memory } from "@/content/memories";
+
+/** ICU arguments for the caption under each quote. */
+function roleArgs(memory: Memory) {
+  return { role: memory.role ?? "player", gender: memory.gender ?? "male" };
+}
 
 /** Masonry wall of player memories, laid out by CSS multi-column. */
 export function Memories() {
@@ -57,11 +62,8 @@ export function Memories() {
                     </cite>
                     <span className="font-pixel text-[9px] uppercase tracking-[.16em] text-cream/55">
                       {memory.year
-                        ? t("roleWithYear", {
-                            gender: memory.gender ?? "male",
-                            year: memory.year,
-                          })
-                        : t("role", { gender: memory.gender ?? "male" })}
+                        ? t("roleWithYear", { ...roleArgs(memory), year: memory.year })
+                        : t("role", roleArgs(memory))}
                     </span>
                   </span>
                 </figcaption>
