@@ -28,8 +28,7 @@
     "play": "Play",
     "pause": "Pause",
     "next": "Next track",
-    "mute": "Mute",
-    "unmute": "Unmute",
+    "quiet": "Low volume",
     "position": "Position"
   },
   "Duck": {

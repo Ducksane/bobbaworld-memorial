@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
   type CSSProperties,
   type KeyboardEvent,
   type MouseEvent,
@@ -20,12 +21,31 @@ const BAR_DURATIONS = [0.9, 0.5, 1.1, 0.7];
 const MARQUEE_SPEED = 16;
 /** Share of a leg spent moving; the remainder is the pause at either end. */
 const MARQUEE_TRAVEL = 0.64;
+/** Volume of the "low" setting; the default is full volume. */
+const QUIET_VOLUME = 0.3;
 
 type SavedState = {
   track: number;
   time: number;
-  muted: boolean;
+  quiet: boolean;
 };
+
+let volumeSettable: boolean | undefined;
+
+/**
+ * iOS Safari leaves `volume` to the hardware buttons: the property reads back 1
+ * whatever is assigned, so a volume toggle there would do nothing.
+ */
+function canSetVolume() {
+  if (volumeSettable === undefined) {
+    const probe = new Audio();
+    probe.volume = 0.5;
+    volumeSettable = probe.volume === 0.5;
+  }
+  return volumeSettable;
+}
+
+const noSubscription = () => () => {};
 
 function readSavedState(): SavedState | null {
   try {
@@ -33,14 +53,14 @@ function readSavedState(): SavedState | null {
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== "object" || parsed === null) return null;
-    const { track, time, muted } = parsed as Partial<SavedState>;
+    const { track, time, quiet } = parsed as Partial<SavedState>;
     return {
       track:
         typeof track === "number" && track >= 0
           ? Math.min(track, tracks.length - 1)
           : 0,
       time: typeof time === "number" && time > 0 ? time : 0,
-      muted: muted === true,
+      quiet: quiet === true,
     };
   } catch {
     return null;
@@ -63,7 +83,7 @@ function formatTime(seconds: number) {
 
 /**
  * Sticky playlist player pinned to the bottom of every page. The track, the
- * playhead and the mute state are mirrored into `localStorage`, so navigating
+ * playhead and the volume setting are mirrored into `localStorage`, so navigating
  * between pages or locales picks up where the visitor left off.
  *
  * Nothing plays until the visitor presses play: browsers block autoplay with
@@ -79,7 +99,9 @@ export function AudioPlayer() {
 
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(false);
+  const [quiet, setQuiet] = useState(false);
+  // Assumed available on the server, so only iOS drops the toggle after hydrating.
+  const volumeControl = useSyncExternalStore(noSubscription, canSetVolume, () => true);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   /** How far the title overflows its frame; 0 when it fits and is simply truncated. */
@@ -94,10 +116,10 @@ export function AudioPlayer() {
     const saved = readSavedState();
     resumeAt.current = saved?.time ?? 0;
     audio.src = tracks[saved?.track ?? 0].src;
-    audio.muted = saved?.muted ?? false;
+    audio.volume = saved?.quiet ? QUIET_VOLUME : 1;
 
     setIndex(saved?.track ?? 0);
-    setMuted(saved?.muted ?? false);
+    setQuiet(saved?.quiet ?? false);
     setTime(resumeAt.current);
   }, []);
 
@@ -129,7 +151,7 @@ export function AudioPlayer() {
     writeSavedState({
       track: index,
       time: audio?.currentTime ?? 0,
-      muted: audio?.muted ?? false,
+      quiet,
       ...next,
     });
   };
@@ -155,12 +177,13 @@ export function AudioPlayer() {
     else audio.pause();
   };
 
-  const toggleMute = () => {
+  const toggleQuiet = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.muted = !audio.muted;
-    setMuted(audio.muted);
-    persist();
+    const next = !quiet;
+    audio.volume = next ? QUIET_VOLUME : 1;
+    setQuiet(next);
+    persist({ quiet: next });
   };
 
   const seekTo = (seconds: number) => {
@@ -330,24 +353,25 @@ export function AudioPlayer() {
         </button>
       )}
 
-      <button
-        type="button"
-        onClick={toggleMute}
-        aria-label={muted ? t("unmute") : t("mute")}
-        className="grid size-9 flex-none place-items-center rounded-full border border-cream/16 text-cream transition-colors duration-200 hover:border-lime hover:text-lime"
-      >
-        {muted ? (
-          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
-            <path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor" />
-            <path d="M11 6l3 4M14 6l-3 4" stroke="currentColor" strokeWidth="1.5" fill="none" />
-          </svg>
-        ) : (
+      {volumeControl && (
+        // A toggle rather than two labels: pressed means the low setting is on.
+        <button
+          type="button"
+          onClick={toggleQuiet}
+          aria-pressed={quiet}
+          aria-label={t("quiet")}
+          title={t("quiet")}
+          className="grid size-9 flex-none place-items-center rounded-full border border-cream/16 text-cream transition-colors duration-200 hover:border-lime hover:text-lime aria-pressed:border-lime/60 aria-pressed:text-lime"
+        >
           <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden>
             <path d="M2 6h3l4-3v10l-4-3H2z" fill="currentColor" />
             <path d="M11.5 5.5a3.5 3.5 0 0 1 0 5" stroke="currentColor" strokeWidth="1.5" fill="none" />
+            {!quiet && (
+              <path d="M13 3.5a6 6 0 0 1 0 9" stroke="currentColor" strokeWidth="1.5" fill="none" />
+            )}
           </svg>
-        )}
-      </button>
+        </button>
+      )}
     </aside>
   );
 }
