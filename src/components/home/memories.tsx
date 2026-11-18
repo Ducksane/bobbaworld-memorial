@@ -51,13 +51,14 @@ export function Memories() {
                     {/* `next/image` needs intrinsic dimensions; habbo-imaging returns
                         whatever the figure string implies, and resizing would smear the
                         pixel art. The design scales by height alone and lets the
-                        negative margin crop the legs off. */}
+                        negative margin crop the legs off, leaving the head centred
+                        in the circle. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={memory.avatar ?? GHOST_AVATAR}
                       alt=""
                       loading="lazy"
-                      className="-mb-[38px] block h-24 w-auto max-w-none [image-rendering:pixelated]"
+                      className="-mb-6 block h-24 w-auto max-w-none [image-rendering:pixelated]"
                     />
                   </span>
                   <span className="flex min-w-0 flex-col gap-1">

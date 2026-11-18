@@ -47,7 +47,24 @@
   },
   "Chat": {
     "you": "Vous :",
-    "send": "Entrée ↵"
+    "send": "Entrée ↵",
+    "speaker": "{name} :",
+    "replies": {
+      "called": [
+        "Quelqu’un m’a appelé ?",
+        "Me voilà !",
+        "On parle de moi ?",
+        "Oui ?",
+        "Présent !"
+      ],
+      "help": [
+        "Besoin d’aide ?",
+        "Un souci ?",
+        "Je peux t’aider ?",
+        "Tout se passe bien ?"
+      ]
+    },
+    "flood": "Tu tapes trop vite! Attends - {seconds, number} sec. pour reparler."
   },
   "Blackout": {
     "label": "Black out · 24 avril 2013",
@@ -64,8 +81,11 @@
       "constellation": "Astronome",
       "aurora": "Aurore boréale",
       "star": "Une étoile à son nom",
-      "staff": "Rencontre avec le staff",
+      "staff": "Étoile du staff",
+      "chat": "Premier message",
+      "summon": "Appel à l’aide",
       "bobba": "Bobba !",
+      "flood": "Floodeur pro",
       "blackout": "Lumières éteintes",
       "queue": "File d’attente"
     }

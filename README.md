@@ -49,9 +49,11 @@ src/
 
 Tout est monté une fois par `src/components/effects/easter-eggs.tsx`.
 
-- **Le ciel vivant** : `src/lib/sky-schedule.ts` tire au hasard, toutes les une à deux minutes de page visible, un événement parmi le canard, l’aurore, la constellation et la comète. En développement, `bwSky("aurora")` dans la console en déclenche un à la demande (`duck`, `aurora`, `constellation`, `comet`).
+- **Le ciel vivant** : `src/lib/sky-schedule.ts` fait passer le canard toutes les une à deux minutes de page visible (toutes les trois à cinq minutes une fois attrapé), et tire au hasard, toutes les deux minutes environ, un événement parmi l’aurore, la constellation et la comète. En développement, `bwSky("aurora")` dans la console en déclenche un à la demande (`duck`, `aurora`, `constellation`, `comet`).
 - **Une étoile par joueur** : cliquer une étoile du fond affiche un pseudo. La liste est dans `src/content/players.ts` ; les membres marqués `staff` y sont signalés et débloquent un badge à part.
 - **Le filtre des gros mots** : taper au clavier ouvre une barre de chat ; les gros mots listés dans `src/lib/bobba-filter.ts` deviennent « #&@!% », comme sur BobbaWorld. Le badge s’appelle toujours « Bobba ! ».
+- **Le staff dans le chat** : écrire « TheStaff », « YingYang » ou « Fullmoon » fait monter leur avatar, qui salue et répond ; « staff » tout court fait venir l’un des trois au hasard, qui propose son aide. Le premier appel débloque le badge « Appel à l’aide ». La liste, les tenues et les noms sont dans `src/components/effects/thestaff-cameo.tsx`, les répliques dans `Chat.replies` des fichiers de messages, et les avatars (deux poses chacun) dans `public/images/avatars/`.
+- **L’anti-flood** : quatre messages en moins de 6 s bloquent la barre de chat pendant 10 s, avec le badge « Floodeur pro ».
 - **Le black-out** : le point de l’entrée « 24 avril 2013 » de la chronologie éteint la page ; il se joue aussi seul chaque 24 avril.
 - **La file d’attente** : sur la page 404.
 - **Les badges** : `src/lib/badges.ts` en garde un par easter egg trouvé dans `localStorage` ; le compteur apparaît dans le pied de page dès le premier.

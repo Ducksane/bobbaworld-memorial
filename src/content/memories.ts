@@ -10,9 +10,10 @@ export type Memory = {
   /** Display name. A proper noun, so it stays out of the message files. */
   pseudo: string;
   /**
-   * Full habbo-imaging URL for the avatar, e.g.
-   * `https://www.habbo.com/habbo-imaging/avatarimage?user=<name>&size=m`.
-   * Left out when the player has not given one; the card falls back to `GHOST_AVATAR`.
+   * The avatar, 64 × 110 like habbo-imaging's `size=m`: either a file in
+   * `public/images/avatars/`, rendered from the player's figure string, or a
+   * full habbo-imaging URL. Left out when the player has not given one; the
+   * card falls back to `GHOST_AVATAR`.
    */
   avatar?: string;
   /** Year the player was around. Left out when unknown. */
@@ -29,5 +30,10 @@ export const GHOST_AVATAR = "/images/ghost.png";
 export const memories: readonly Memory[] = [
   { id: "right", pseudo: "Right" },
   { id: "xxbella", pseudo: "XxbellaXx", gender: "female" },
-  { id: "redshark", pseudo: "Redshark", role: "staff" },
+  {
+    id: "redshark",
+    pseudo: "Redshark",
+    role: "staff",
+    avatar: "/images/avatars/redshark.png",
+  },
 ];

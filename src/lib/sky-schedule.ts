@@ -2,13 +2,15 @@
  * The living sky, run on *visible* page time by two clocks:
  *
  * - the duck's own, so it peeks in often enough to be caught — clicking it is
- *   the only way to its badge;
+ *   the only way to its badge. Once the badge is earned it comes by less;
  * - a shared one that, every couple of minutes, hands the stage to a single
  *   random event: an aurora, a constellation or a comet. Only one of those is
  *   ever called at a time.
  *
  * Each effect subscribes to its own kind and plays when called.
  */
+import { getBadges, subscribeToBadges } from "@/lib/badges";
+
 export type SkyEvent = "duck" | "aurora" | "constellation" | "comet";
 
 type Range = readonly [min: number, max: number];
@@ -16,6 +18,8 @@ type Range = readonly [min: number, max: number];
 /** Seconds before the duck first peeks in, then between its visits. */
 const DUCK_FIRST: Range = [25, 45];
 const DUCK_NEXT: Range = [60, 120];
+/** Seconds between its visits once it has been clicked and its badge earned. */
+const DUCK_CAUGHT: Range = [180, 300];
 /** When a visit falls during the blackout, the duck tries again this soon. */
 const DUCK_RETRY = 5;
 
@@ -37,6 +41,11 @@ let clock: ReturnType<typeof setInterval> | undefined;
 const duck: Timer = { waited: 0, target: 0 };
 const sky: Timer = { waited: 0, target: 0 };
 let lastSky: SkyEvent | null = null;
+let stopWatchingBadges: (() => void) | undefined;
+
+function duckCaught() {
+  return getBadges().includes("duck");
+}
 
 function randomBetween([min, max]: Range) {
   return min + Math.random() * (max - min);
@@ -71,7 +80,7 @@ function tick() {
   // A page left in a background tab does not burn through the wait.
   if (document.visibilityState !== "visible") return;
 
-  if (due(duck, DUCK_NEXT)) {
+  if (due(duck, duckCaught() ? DUCK_CAUGHT : DUCK_NEXT)) {
     // The page is dark during the blackout: the duck waits for the lights.
     if (document.documentElement.dataset.blackout !== undefined) {
       duck.target = DUCK_RETRY;
@@ -92,7 +101,15 @@ function tick() {
 export function onSkyEvent(kind: SkyEvent, play: () => void) {
   listeners.set(kind, play);
   if (clock === undefined) {
-    Object.assign(duck, { waited: 0, target: randomBetween(DUCK_FIRST) });
+    Object.assign(duck, {
+      waited: 0,
+      target: randomBetween(duckCaught() ? DUCK_CAUGHT : DUCK_FIRST),
+    });
+    // The moment the duck is caught, its next visit moves to the slower pace.
+    stopWatchingBadges = subscribeToBadges(() => {
+      if (!duckCaught()) return;
+      duck.target = Math.max(duck.target, duck.waited + randomBetween(DUCK_CAUGHT));
+    });
     Object.assign(sky, { waited: 0, target: randomBetween(SKY_FIRST) });
     clock = setInterval(tick, 1000);
     // Lets the events be called up by hand while developing: `bwSky("aurora")`.
@@ -108,6 +125,8 @@ export function onSkyEvent(kind: SkyEvent, play: () => void) {
     if (listeners.size === 0) {
       clearInterval(clock);
       clock = undefined;
+      stopWatchingBadges?.();
+      stopWatchingBadges = undefined;
     }
   };
 }

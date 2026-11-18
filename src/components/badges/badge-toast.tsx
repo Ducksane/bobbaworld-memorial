@@ -1,20 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { BADGES, getBadges, onBadgeAwarded, type BadgeId } from "@/lib/badges";
+import { getBadges, onBadgeAwarded, reachableBadges, type BadgeId } from "@/lib/badges";
 import { useMotionAllowed } from "@/hooks/use-motion-allowed";
 import { msUntilAnswerEnds, playSfx } from "@/lib/sfx";
 
 /** How long a toast stays up. Matches `bwToast`. */
 const TOAST_MS = 4600;
+/**
+ * How long a toast stays when another badge is waiting behind it: long enough
+ * for its chime to ring out, so two badges earned together follow quickly.
+ */
+const QUEUED_TOAST_MS = 2200;
 /** Breath between the sound that earned a badge and the badge's own chime. */
 const AFTER_SOUND_MS = 180;
 
 type Toast = {
   id: BadgeId;
-  /** How many badges the visitor had once this one was earned. */
+  /** How many badges the visitor had once this one was earned… */
   found: number;
+  /** …out of how many this device can earn. */
+  total: number;
 };
 
 /**
@@ -28,12 +35,16 @@ export function BadgeToast() {
   const motionOk = useMotionAllowed();
   const [queue, setQueue] = useState<Toast[]>([]);
   const current = queue.at(0);
+  const hasNext = queue.length > 1;
+  /** When the current toast came up, in `performance.now()` time. */
+  const shownAt = useRef(0);
 
   useEffect(() => {
     const waits = new Set<ReturnType<typeof setTimeout>>();
 
     const stop = onBadgeAwarded((id) => {
-      const toast = { id, found: getBadges().length };
+      const found = getBadges();
+      const toast = { id, found: found.length, total: reachableBadges(found).length };
       const enqueue = () => setQueue((waiting) => [...waiting, toast]);
 
       // Checked once the click or key handler that earned the badge is done,
@@ -59,10 +70,19 @@ export function BadgeToast() {
     if (!current) return;
 
     // Chimes as each toast comes up, so queued badges ring one after the other.
+    shownAt.current = performance.now();
     playSfx("badge");
-    const next = setTimeout(() => setQueue((waiting) => waiting.slice(1)), TOAST_MS);
-    return () => clearTimeout(next);
   }, [current]);
+
+  // Moves on once the toast has had its time — cut short when another waits.
+  useEffect(() => {
+    if (!current) return;
+
+    const hold = hasNext ? QUEUED_TOAST_MS : TOAST_MS;
+    const left = Math.max(hold - (performance.now() - shownAt.current), 0);
+    const next = setTimeout(() => setQueue((waiting) => waiting.slice(1)), left);
+    return () => clearTimeout(next);
+  }, [current, hasNext]);
 
   return (
     <div
@@ -95,7 +115,7 @@ export function BadgeToast() {
             aria-hidden
             className="ml-2 flex-none font-pixel text-[9px] tracking-[.14em] text-cream/45"
           >
-            {current.found}/{BADGES.length}
+            {current.found}/{current.total}
           </span>
         </div>
       )}

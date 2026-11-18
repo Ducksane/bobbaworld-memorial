@@ -3,16 +3,18 @@
 import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import {
-  BADGES,
   getBadges,
   getServerBadges,
+  reachableBadges,
   subscribeToBadges,
 } from "@/lib/badges";
 
 /**
  * The visitor's badge tally, in the footer. It stays out of sight until the
  * first badge is earned, so the easter eggs are not given away up front.
- * Badges still to find show as empty frames, their names withheld.
+ * Badges still to find show as empty frames, their names withheld. Only the
+ * badges this device can earn are counted: on a phone, with no keyboard for
+ * the chat, the tally is shorter.
  */
 export function BadgeShelf() {
   const t = useTranslations("Badges");
@@ -20,11 +22,14 @@ export function BadgeShelf() {
 
   if (found.length === 0) return null;
 
+  // Rendered on the client only: the server never has a badge to show.
+  const reachable = reachableBadges(found);
+
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 font-pixel text-[10px] uppercase tracking-[.16em] text-cream/55">
-      <span>{t("tally", { found: found.length, total: BADGES.length })}</span>
+      <span>{t("tally", { found: found.length, total: reachable.length })}</span>
       <ul className="flex gap-1.5">
-        {BADGES.map((id) => {
+        {reachable.map((id) => {
           const earned = found.includes(id);
           const name = earned ? t(`names.${id}`) : t("unknown");
 

@@ -35,6 +35,12 @@
   --animate-star-name: bwStarName 3.8s ease-out both;
   --animate-blackout-note: bwBlackoutNote 3.6s ease both;
   --animate-queue: bwQueue 4.6s linear infinite;
+  /* The team's cameo in the chat. The visit matches CAMEO_MS; the wave is one
+     beat of arm up then arm down, shared by the two poses. */
+  --animate-staff-visit: bwStaffVisit 9s both;
+  --animate-staff-arm-up: bwStaffArmUp 1.6s steps(1) infinite;
+  --animate-staff-arm-down: bwStaffArmDown 1.6s steps(1) infinite;
+  --animate-staff-bubble: bwStaffBubble 9s ease both;
 }
 
 @theme inline {
@@ -195,6 +201,27 @@
   0%, 24% { opacity: 0; }
   42%, 84% { opacity: 1; }
   100% { opacity: 0; }
+}
+/* TheStaff rises from the floor in pixel steps, stays, and sinks back. */
+@keyframes bwStaffVisit {
+  0% { transform: translateY(105%); animation-timing-function: steps(7, end); }
+  10%, 89% { transform: none; animation-timing-function: steps(7, end); }
+  100% { transform: translateY(105%); }
+}
+/* The arm stays up for most of the beat and drops briefly; the two keyframes
+   are exact opposites, so exactly one pose is visible at any time. */
+@keyframes bwStaffArmUp {
+  0% { opacity: 1; }
+  70% { opacity: 0; }
+}
+@keyframes bwStaffArmDown {
+  0% { opacity: 0; }
+  70% { opacity: 1; }
+}
+@keyframes bwStaffBubble {
+  0%, 13% { opacity: 0; transform: translateY(6px); }
+  18%, 82% { opacity: 1; transform: none; }
+  87%, 100% { opacity: 0; transform: translateY(-6px); }
 }
 /* A timeline dot swells as the rail reaches it. */
 @keyframes bwDotPop {

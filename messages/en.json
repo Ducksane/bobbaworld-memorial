@@ -47,7 +47,24 @@
   },
   "Chat": {
     "you": "You:",
-    "send": "Enter ↵"
+    "send": "Enter ↵",
+    "speaker": "{name}:",
+    "replies": {
+      "called": [
+        "Did someone call me?",
+        "Here I am!",
+        "Talking about me?",
+        "Yes?",
+        "Present!"
+      ],
+      "help": [
+        "Need help?",
+        "Any trouble?",
+        "Can I help?",
+        "Everything all right?"
+      ]
+    },
+    "flood": "You’re typing too fast! Wait - {seconds, number} sec. to talk again."
   },
   "Blackout": {
     "label": "Black out · 24 April 2013",
@@ -64,8 +81,11 @@
       "constellation": "Stargazer",
       "aurora": "Northern lights",
       "star": "A star with a name",
-      "staff": "Met the staff",
+      "staff": "Staff Star",
+      "chat": "First words",
+      "summon": "Call for Help",
       "bobba": "Bobba!",
+      "flood": "Pro flooder",
       "blackout": "Lights out",
       "queue": "In the queue"
     }

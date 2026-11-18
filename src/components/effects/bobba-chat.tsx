@@ -6,6 +6,7 @@ import { useMotionAllowed } from "@/hooks/use-motion-allowed";
 import { awardBadge } from "@/lib/badges";
 import { bobbaFilter } from "@/lib/bobba-filter";
 import { playSfx } from "@/lib/sfx";
+import { CAMEO_MS, cameoFor, TheStaffCameo, type Cameo } from "./thestaff-cameo";
 
 /** Longest line the chat bar takes. */
 const MAX_LENGTH = 60;
@@ -15,6 +16,11 @@ const IDLE_SEND_MS = 2600;
 const BUBBLE_MS = 9000;
 /** How long a bubble stays when it cannot float, under reduced motion. */
 const STILL_BUBBLE_MS = 4000;
+/** Flood control, as in a Habbo room: this many lines this fast… */
+const FLOOD_LINES = 4;
+const FLOOD_WINDOW_MS = 6000;
+/** …and the chat bar stays locked this long. */
+const FLOOD_MUTE_S = 10;
 
 type Bubble = {
   id: number;
@@ -38,13 +44,17 @@ function isTyping(target: EventTarget | null) {
  * Easter egg: there is no text field on the page, but typing anyway opens a
  * chat bar. Enter sends the line up the screen as a speech bubble, the way
  * chat rose in a Habbo room — and, as it did on BobbaWorld, rude words come
- * out as "#&@!%".
+ * out as "#&@!%". Sending too many lines too fast locks the bar for a while,
+ * the way Habbo's flood control did. Naming TheStaff, YingYang or Fullmoon, or just saying "staff", brings one of the team up to answer.
  */
 export function BobbaChat() {
   const t = useTranslations("Chat");
   const motionOk = useMotionAllowed();
   const [draft, setDraft] = useState("");
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [cameo, setCameo] = useState<Cameo | null>(null);
+  /** Seconds left before the chat bar unlocks; 0 when it is open. */
+  const [muted, setMuted] = useState(0);
 
   // The key handler is bound once; these keep it reading the latest values.
   const draftRef = useRef("");
@@ -55,7 +65,28 @@ export function BobbaChat() {
 
   useEffect(() => {
     let idle: ReturnType<typeof setTimeout> | undefined;
+    let staffLeaves: ReturnType<typeof setTimeout> | undefined;
+    let unmute: ReturnType<typeof setInterval> | undefined;
+    /** When the chat bar unlocks, in `Date.now()` time; 0 when it is open. */
+    let mutedUntil = 0;
+    /** When the recent lines were sent, for flood control. */
+    let sentAt: number[] = [];
     const fading = new Set<ReturnType<typeof setTimeout>>();
+
+    const mute = () => {
+      mutedUntil = Date.now() + FLOOD_MUTE_S * 1000;
+      sentAt = [];
+      awardBadge("flood");
+      setMuted(FLOOD_MUTE_S);
+      clearInterval(unmute);
+      unmute = setInterval(() => {
+        const left = Math.ceil((mutedUntil - Date.now()) / 1000);
+        setMuted(Math.max(left, 0));
+        if (left > 0) return;
+        mutedUntil = 0;
+        clearInterval(unmute);
+      }, 250);
+    };
 
     const write = (next: string) => {
       draftRef.current = next;
@@ -70,7 +101,17 @@ export function BobbaChat() {
 
       const { text, censored } = bobbaFilter(line);
       playSfx("message");
+      awardBadge("chat");
       if (censored) awardBadge("bobba");
+
+      const visit = cameoFor(line);
+      if (visit) {
+        awardBadge("summon");
+        // Called again during a visit: the new one starts over from the floor.
+        clearTimeout(staffLeaves);
+        setCameo(visit);
+        staffLeaves = setTimeout(() => setCameo(null), CAMEO_MS);
+      }
 
       const id = Date.now();
       setBubbles((current) => [
@@ -85,11 +126,17 @@ export function BobbaChat() {
         motionRef.current ? BUBBLE_MS : STILL_BUBBLE_MS,
       );
       fading.add(gone);
+
+      const now = Date.now();
+      sentAt = [...sentAt.filter((at) => now - at < FLOOD_WINDOW_MS), now];
+      if (sentAt.length >= FLOOD_LINES) mute();
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return;
       if (isTyping(event.target)) return;
+      // Flood control: nothing gets typed until the bar unlocks.
+      if (mutedUntil > Date.now()) return;
 
       const current = draftRef.current;
       const focused = document.activeElement;
@@ -135,47 +182,61 @@ export function BobbaChat() {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       clearTimeout(idle);
+      clearTimeout(staffLeaves);
+      clearInterval(unmute);
       fading.forEach(clearTimeout);
     };
   }, []);
 
-  if (!draft && bubbles.length === 0) return null;
+  if (!draft && bubbles.length === 0 && cameo === null && muted === 0) return null;
 
   return (
-    // Sits just above the audio player, which is 64px tall and 20px off the bottom.
-    <div className="pointer-events-none fixed inset-x-0 bottom-[100px] z-30 flex justify-center px-4">
-      {bubbles.map((bubble) => (
-        <p
-          key={bubble.id}
-          role="status"
-          className={`absolute bottom-full mb-3 max-w-[min(calc(100vw-32px),420px)] border-2 border-night bg-paper px-3 py-1.5 text-[14px] leading-[1.35] break-words text-night shadow-[3px_3px_0_rgba(5,11,22,.55)] outline outline-cream/25 ${
-            motionOk ? "animate-bubble" : ""
-          }`}
-          style={{ marginLeft: bubble.drift }}
-        >
-          <b className="font-semibold">{t("you")}</b> {bubble.text}
-          {/* The bubble's tail, a single stepped notch. */}
-          <span
-            aria-hidden
-            className="absolute top-full left-5 size-1.5 border-2 border-t-0 border-night bg-paper"
-          />
-        </p>
-      ))}
+    <>
+      <TheStaffCameo cameo={cameo} motionOk={motionOk} />
+      {/* Sits just above the audio player, which is 64px tall and 20px off the bottom. */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-[100px] z-30 flex justify-center px-4">
+        {bubbles.map((bubble) => (
+          <p
+            key={bubble.id}
+            role="status"
+            className={`absolute bottom-full mb-3 max-w-[min(calc(100vw-32px),420px)] border-2 border-night bg-paper px-3 py-1.5 text-[14px] leading-[1.35] break-words text-night shadow-[3px_3px_0_rgba(5,11,22,.55)] outline outline-cream/25 ${
+              motionOk ? "animate-bubble" : ""
+            }`}
+            style={{ marginLeft: bubble.drift }}
+          >
+            <b className="font-semibold">{t("you")}</b> {bubble.text}
+            {/* The bubble's tail, a single stepped notch. */}
+            <span
+              aria-hidden
+              className="absolute top-full left-5 size-1.5 border-2 border-t-0 border-night bg-paper"
+            />
+          </p>
+        ))}
 
-      {draft && (
-        <p
-          aria-hidden
-          className="flex max-w-[min(calc(100vw-32px),420px)] items-center gap-2 border-2 border-night bg-paper px-3 py-1.5 text-[14px] leading-[1.35] text-night shadow-[3px_3px_0_rgba(5,11,22,.55)] outline outline-cream/25"
-        >
-          <span className="min-w-0 break-words whitespace-pre-wrap">
-            {draft}
-            <span className="ml-px inline-block h-[1em] w-[2px] translate-y-[2px] animate-blink bg-night" />
-          </span>
-          <span className="flex-none font-pixel text-[9px] uppercase tracking-[.14em] text-night/45">
-            {t("send")}
-          </span>
-        </p>
-      )}
-    </div>
+        {/* Flood control locks the bar; otherwise it shows the line being typed. */}
+        {muted > 0 && (
+          <p
+            role="status"
+            className="flex max-w-[min(calc(100vw-32px),420px)] items-center gap-2 border-2 border-night bg-paper px-3 py-1.5 text-[14px] leading-[1.35] text-ember shadow-[3px_3px_0_rgba(5,11,22,.55)] outline outline-ember/50"
+          >
+            <span className="min-w-0 tabular-nums">{t("flood", { seconds: muted })}</span>
+          </p>
+        )}
+        {muted === 0 && draft && (
+          <p
+            aria-hidden
+            className="flex max-w-[min(calc(100vw-32px),420px)] items-center gap-2 border-2 border-night bg-paper px-3 py-1.5 text-[14px] leading-[1.35] text-night shadow-[3px_3px_0_rgba(5,11,22,.55)] outline outline-cream/25"
+          >
+            <span className="min-w-0 break-words whitespace-pre-wrap">
+              {draft}
+              <span className="ml-px inline-block h-[1em] w-[2px] translate-y-[2px] animate-blink bg-night" />
+            </span>
+            <span className="flex-none font-pixel text-[9px] uppercase tracking-[.14em] text-night/45">
+              {t("send")}
+            </span>
+          </p>
+        )}
+      </div>
+    </>
   );
 }

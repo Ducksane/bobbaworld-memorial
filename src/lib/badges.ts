@@ -9,12 +9,42 @@ export const BADGES = [
   "aurora",
   "star",
   "staff",
+  "chat",
+  "summon",
   "bobba",
+  "flood",
   "blackout",
   "queue",
 ] as const;
 
 export type BadgeId = (typeof BADGES)[number];
+
+/**
+ * Badges earned in the chat, which opens by typing: a phone or tablet with no
+ * keyboard has nothing to type with.
+ */
+const NEEDS_KEYBOARD: readonly BadgeId[] = ["chat", "summon", "bobba", "flood"];
+/** Badges for the sky's visual events, which do not run under reduced motion. */
+const NEEDS_MOTION: readonly BadgeId[] = ["comet", "constellation", "aurora"];
+
+/**
+ * The badges this visitor can actually earn on this device, so the tally does
+ * not send anyone looking for one they can never find. A badge already earned
+ * always counts. Browser-only: call it from an effect or an event handler.
+ */
+export function reachableBadges(found: readonly BadgeId[] = getBadges()) {
+  // A mouse or trackpad means a computer, and so a keyboard; a touch screen
+  // alone does not.
+  const keyboard = window.matchMedia("(any-pointer: fine)").matches;
+  const motion = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  return BADGES.filter(
+    (id) =>
+      found.includes(id) ||
+      ((keyboard || !NEEDS_KEYBOARD.includes(id)) &&
+        (motion || !NEEDS_MOTION.includes(id))),
+  );
+}
 
 const STORAGE_KEY = "bw-badges";
 const NONE: readonly BadgeId[] = [];
@@ -22,6 +52,12 @@ const NONE: readonly BadgeId[] = [];
 let cache: readonly BadgeId[] | undefined;
 const changeListeners = new Set<() => void>();
 const awardListeners = new Set<(id: BadgeId) => void>();
+/**
+ * Badges earned while nothing was listening — such as the 404's, granted as
+ * the page mounts, before the toast has subscribed. Announced to the first
+ * listener that comes along.
+ */
+let unannounced: BadgeId[] = [];
 
 function read(): readonly BadgeId[] {
   try {
@@ -59,9 +95,15 @@ export function subscribeToBadges(onChange: () => void) {
   };
 }
 
-/** Called once for each badge, the moment it is first earned. */
+/**
+ * Called once for each badge, the moment it is first earned — or, for a badge
+ * earned before anyone listened, as soon as the listener is added.
+ */
 export function onBadgeAwarded(listener: (id: BadgeId) => void) {
   awardListeners.add(listener);
+  const missed = unannounced;
+  unannounced = [];
+  for (const id of missed) listener(id);
   return () => {
     awardListeners.delete(listener);
   };
@@ -79,5 +121,6 @@ export function awardBadge(id: BadgeId) {
     // Private browsing or a full quota: the badge still counts for this visit.
   }
   for (const listener of changeListeners) listener();
+  if (awardListeners.size === 0) unannounced.push(id);
   for (const listener of awardListeners) listener(id);
 }
