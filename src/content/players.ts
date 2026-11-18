@@ -5,7 +5,8 @@ import { memories } from "@/content/memories";
  * lights up as one of these players. See `StarNames`.
  *
  * To add someone, append them to `named`. Everyone on the memories wall is
- * included automatically.
+ * included automatically, as a player: a star is marked staff only here, never
+ * from the "Staff" caption on the wall.
  */
 export type Player = {
   pseudo: string;
@@ -27,14 +28,32 @@ const named: readonly Player[] = [
   { pseudo: "TheCleement" },
   { pseudo: "Exils" },
   { pseudo: "KapruN" },
+  { pseudo: "Offi" },
+  { pseudo: "Introuvable" },
+  { pseudo: "Choupinette13" },
+  { pseudo: "Daezen" },
+  { pseudo: "Waidz" },
+  { pseudo: "Zalik" },
+  { pseudo: "bubulle" },
+  { pseudo: "Noway" },
+  { pseudo: "Roxie" },
+  // From the users table of the 2017 relaunch.
+  { pseudo: "Emetophobic" },
+  { pseudo: "Asticot" },
+  { pseudo: "Tiraymond" },
+  { pseudo: "Luffy" },
+  { pseudo: "Apollo" },
+  { pseudo: "Bluescreen" },
+  { pseudo: "Virgil" },
+  { pseudo: "Aloka" },
+  { pseudo: "MadHatter" },
+  { pseudo: "Melanie" },
+  { pseudo: "Thranos" },
+  { pseudo: "Straping" },
 ];
 
 const fromMemories: readonly Player[] = memories
   .filter((memory) => !named.some((player) => player.pseudo === memory.pseudo))
-  .map((memory) =>
-    memory.role === "staff"
-      ? { pseudo: memory.pseudo, staff: true }
-      : { pseudo: memory.pseudo },
-  );
+  .map((memory) => ({ pseudo: memory.pseudo }));
 
 export const players: readonly Player[] = [...named, ...fromMemories];
