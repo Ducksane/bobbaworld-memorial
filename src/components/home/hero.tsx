@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { ParallaxLayer } from "@/components/effects/parallax-layer";
+import { ScrambleText } from "@/components/effects/scramble-text";
+import { ScrollAway } from "@/components/effects/scroll-away";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ButtonLink } from "@/components/ui/button-link";
 import { siteConfig } from "@/config/site";
@@ -42,9 +44,9 @@ export function Hero() {
         </span>
       </div>
 
-      <div className="relative">
+      <ScrollAway className="relative will-change-[transform,opacity]">
         <p className="mb-[18px] animate-rise font-pixel text-[clamp(11px,1.2vw,14px)] uppercase tracking-[.24em] text-lime">
-          {t("tagline")}
+          <ScrambleText text={t("tagline")} delay={250} />
         </p>
         <h1 className="mb-[34px] -ml-[0.04em] animate-rise-late font-display text-[clamp(60px,13.5vw,196px)] leading-[.86] font-extrabold tracking-[-.045em] text-paper display-opsz [text-shadow:0_10px_60px_rgba(5,11,22,.8)]">
           {t("title")}
@@ -64,7 +66,7 @@ export function Hero() {
             </ButtonLink>
           </div>
         </div>
-      </div>
+      </ScrollAway>
     </header>
   );
 }

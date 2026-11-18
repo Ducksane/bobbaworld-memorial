@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { AudioPlayer } from "@/components/audio/audio-player";
-import { DuckEasterEgg } from "@/components/effects/duck-easter-egg";
+import { EasterEggs } from "@/components/effects/easter-eggs";
+import { SmoothScroll } from "@/components/effects/smooth-scroll";
 import { StarField } from "@/components/effects/star-field";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SkipLink } from "@/components/layout/skip-link";
 import { fontVariables } from "@/app/fonts";
+import "lenis/dist/lenis.css";
 import "@/app/globals.css";
 
 type SiteShellProps = {
@@ -19,13 +21,15 @@ type SiteShellProps = {
  */
 export function SiteShell({ lang, children }: SiteShellProps) {
   return (
-    <html lang={lang} className={`${fontVariables} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-night font-sans text-[17px] leading-[1.6] text-cream">
+    <html lang={lang} className={`${fontVariables} antialiased`}>
+      <body className="flex min-h-dvh flex-col bg-night font-sans text-[17px] leading-[1.6] text-cream">
         <NextIntlClientProvider>
           <SkipLink />
+          <SmoothScroll />
           <StarField />
           <div
             data-quake
+            data-dim
             className="relative z-[1] flex flex-1 flex-col overflow-x-hidden"
           >
             <main id="main" className="flex flex-1 flex-col">
@@ -34,7 +38,7 @@ export function SiteShell({ lang, children }: SiteShellProps) {
             <SiteFooter />
           </div>
           <AudioPlayer />
-          <DuckEasterEgg />
+          <EasterEggs />
         </NextIntlClientProvider>
       </body>
     </html>

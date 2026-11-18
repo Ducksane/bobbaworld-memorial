@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { BadgeShelf } from "@/components/badges/badge-shelf";
 import { Container } from "@/components/ui/container";
 import { siteConfig } from "@/config/site";
 import { LocaleSwitcher } from "./locale-switcher";
@@ -44,9 +45,12 @@ export function SiteFooter() {
             <LocaleSwitcher />
           </nav>
         </div>
-        <p className="max-w-[680px] text-[13px] leading-[1.6] text-pretty text-cream/60">
-          {t("disclaimer")}
-        </p>
+        <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-6">
+          <p className="max-w-[680px] text-[13px] leading-[1.6] text-pretty text-cream/60">
+            {t("disclaimer")}
+          </p>
+          <BadgeShelf />
+        </div>
       </Container>
     </footer>
   );

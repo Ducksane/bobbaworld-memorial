@@ -34,6 +34,42 @@
   "Duck": {
     "label": "Faire couiner le canard"
   },
+  "Sky": {
+    "constellation": "Constellation · {name}",
+    "figures": {
+      "duck": "Le Canard",
+      "year": "L’An 2007",
+      "bubble": "La Bulle"
+    }
+  },
+  "Stars": {
+    "staff": "Staff"
+  },
+  "Chat": {
+    "you": "Vous :",
+    "send": "Entrée ↵"
+  },
+  "Blackout": {
+    "label": "Black out · 24 avril 2013",
+    "text": "BobbaWorld éteint ses lumières, le temps d’un instant.",
+    "trigger": "Éteindre les lumières"
+  },
+  "Badges": {
+    "unlocked": "Badge débloqué",
+    "tally": "Badges {found, number}/{total, number}",
+    "unknown": "Badge à découvrir",
+    "names": {
+      "duck": "Ami des canards",
+      "comet": "Chasseur de comètes",
+      "constellation": "Astronome",
+      "aurora": "Aurore boréale",
+      "star": "Une étoile à son nom",
+      "staff": "Rencontre avec le staff",
+      "bobba": "Bobba !",
+      "blackout": "Lumières éteintes",
+      "queue": "File d’attente"
+    }
+  },
   "Hero": {
     "badge": "Mémorial · 2007 — 2015",
     "domain": "bobbaworld.fr",
@@ -141,7 +177,12 @@
     "label": "Erreur 404",
     "title": "Page introuvable",
     "description": "Cette page n’existe pas ou a été déplacée.",
-    "backHome": "Retour à l’accueil"
+    "backHome": "Retour à l’accueil",
+    "queue": {
+      "label": "File d’attente",
+      "position": "Le serveur est plein. Vous êtes en position <strong>{position, number}</strong> dans la file.",
+      "status": "{online, number} joueurs connectés · Attente estimée : ∞"
+    }
   },
   "Error": {
     "label": "Erreur",

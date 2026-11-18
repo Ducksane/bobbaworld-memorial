@@ -34,6 +34,42 @@
   "Duck": {
     "label": "Make the duck quack"
   },
+  "Sky": {
+    "constellation": "Constellation · {name}",
+    "figures": {
+      "duck": "The Duck",
+      "year": "The Year 2007",
+      "bubble": "The Bubble"
+    }
+  },
+  "Stars": {
+    "staff": "Staff"
+  },
+  "Chat": {
+    "you": "You:",
+    "send": "Enter ↵"
+  },
+  "Blackout": {
+    "label": "Black out · 24 April 2013",
+    "text": "BobbaWorld turns its lights off, just for a moment.",
+    "trigger": "Turn off the lights"
+  },
+  "Badges": {
+    "unlocked": "Badge unlocked",
+    "tally": "Badges {found, number}/{total, number}",
+    "unknown": "Badge to discover",
+    "names": {
+      "duck": "Friend of the ducks",
+      "comet": "Comet chaser",
+      "constellation": "Stargazer",
+      "aurora": "Northern lights",
+      "star": "A star with a name",
+      "staff": "Met the staff",
+      "bobba": "Bobba!",
+      "blackout": "Lights out",
+      "queue": "In the queue"
+    }
+  },
   "Hero": {
     "badge": "Memorial · 2007 — 2015",
     "domain": "bobbaworld.fr",
@@ -141,7 +177,12 @@
     "label": "Error 404",
     "title": "Page not found",
     "description": "This page doesn’t exist or has been moved.",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "queue": {
+      "label": "Waiting queue",
+      "position": "The server is full. You are number <strong>{position, number}</strong> in the queue.",
+      "status": "{online, number} players online · Estimated wait: ∞"
+    }
   },
   "Error": {
     "label": "Error",

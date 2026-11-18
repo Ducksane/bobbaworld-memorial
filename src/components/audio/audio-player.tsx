@@ -11,8 +11,9 @@ import {
 } from "react";
 import { useTranslations } from "next-intl";
 import { tracks } from "@/content/tracks";
+import { PLAYER_STORAGE_KEY, QUIET_VOLUME } from "@/lib/player-settings";
+import { setMusicPlaying } from "@/lib/sfx";
 
-const STORAGE_KEY = "bw-player";
 /** Seconds skipped per arrow key on the progress slider. */
 const SEEK_STEP = 5;
 /** Per-bar animation duration of the equaliser, in seconds. */
@@ -21,8 +22,6 @@ const BAR_DURATIONS = [0.9, 0.5, 1.1, 0.7];
 const MARQUEE_SPEED = 16;
 /** Share of a leg spent moving; the remainder is the pause at either end. */
 const MARQUEE_TRAVEL = 0.64;
-/** Volume of the "low" setting; the default is full volume. */
-const QUIET_VOLUME = 0.3;
 
 type SavedState = {
   track: number;
@@ -49,7 +48,7 @@ const noSubscription = () => () => {};
 
 function readSavedState(): SavedState | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(PLAYER_STORAGE_KEY);
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== "object" || parsed === null) return null;
@@ -69,7 +68,7 @@ function readSavedState(): SavedState | null {
 
 function writeSavedState(state: SavedState) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(PLAYER_STORAGE_KEY, JSON.stringify(state));
   } catch {
     // Private browsing or a full quota: playback still works, it just won't resume.
   }
@@ -245,8 +244,14 @@ export function AudioPlayer() {
           setTime(audio.currentTime);
           persist();
         }}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
+        onPlay={() => {
+          setPlaying(true);
+          setMusicPlaying(true);
+        }}
+        onPause={() => {
+          setPlaying(false);
+          setMusicPlaying(false);
+        }}
         onEnded={() => {
           if (hasPlaylist) goToTrack((index + 1) % tracks.length, true);
         }}

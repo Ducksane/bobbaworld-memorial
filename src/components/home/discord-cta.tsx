@@ -1,5 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/effects/reveal";
+import { RiseWords } from "@/components/effects/rise-words";
+import { ScrambleText } from "@/components/effects/scramble-text";
 import { ButtonLink } from "@/components/ui/button-link";
 import { Container } from "@/components/ui/container";
 import { PixelLabel } from "@/components/ui/pixel-label";
@@ -18,10 +20,10 @@ export function DiscordCta() {
               blink
               className="mb-[18px] text-[10px] tracking-[.18em] text-lime"
             >
-              {t("label")}
+              <ScrambleText text={t("label")} delay={200} />
             </PixelLabel>
             <h2 className="mb-3.5 font-display text-[clamp(28px,3.6vw,42px)] leading-[1.05] font-bold tracking-[-.03em] text-balance text-paper">
-              {t("title")}
+              <RiseWords text={t("title")} delay={250} />
             </h2>
             <p className="max-w-[520px] text-pretty text-cream/74">
               {t.rich("body", {

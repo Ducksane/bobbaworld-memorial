@@ -1,5 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Reveal } from "@/components/effects/reveal";
+import { RiseWords } from "@/components/effects/rise-words";
+import { ScrambleText } from "@/components/effects/scramble-text";
 import { Container } from "@/components/ui/container";
 import { PixelLabel } from "@/components/ui/pixel-label";
 import { GHOST_AVATAR, memories, type Memory } from "@/content/memories";
@@ -18,20 +20,22 @@ export function Memories() {
       <Container className="pt-[140px] pb-10">
         <div className="mb-12">
           <PixelLabel className="mb-[18px] text-[11px] tracking-[.18em] text-lime">
-            {t("label")}
+            <ScrambleText text={t("label")} />
           </PixelLabel>
           <h2 className="font-display text-[clamp(30px,4vw,48px)] leading-[1.02] font-bold tracking-[-.03em] text-balance text-paper">
-            {t("title")}
+            <RiseWords text={t("title")} delay={150} />
           </h2>
-          <p className="mt-[18px] max-w-[540px] text-[15px] leading-[1.55] text-pretty text-cream/62">
-            {t("intro")}
-          </p>
+          <Reveal>
+            <p className="mt-[18px] max-w-[540px] text-[15px] leading-[1.55] text-pretty text-cream/62">
+              {t("intro")}
+            </p>
+          </Reveal>
         </div>
 
         {/* `columns: 3 300px` — three columns, collapsing as the cards hit 300px. */}
-        <div className="columns-[3_300px] gap-x-5">
+        <div className="relative columns-[3_300px] gap-x-5">
           {memories.map((memory) => (
-            <Reveal key={memory.id} className="mb-5 break-inside-avoid">
+            <Reveal key={memory.id} cascade className="mb-5 break-inside-avoid">
               <figure className="flex flex-col gap-5 border border-cream/12 bg-[linear-gradient(180deg,rgba(236,232,220,.045),rgba(236,232,220,.015))] px-[26px] pt-[26px] pb-6 transition-colors duration-300 hover:border-lime/50">
                 <span
                   aria-hidden

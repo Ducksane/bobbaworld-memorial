@@ -1,18 +1,12 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type CSSProperties,
-} from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
+import { useMotionAllowed } from "@/hooks/use-motion-allowed";
+import { awardBadge } from "@/lib/badges";
+import { playSfx, preloadSfx } from "@/lib/sfx";
+import { onSkyEvent } from "@/lib/sky-schedule";
 
-/** Seconds of *visible* page time before the duck first shows up. */
-const FIRST_VISIT: readonly [number, number] = [45, 90];
-/** Seconds between later appearances. */
-const NEXT_VISIT: readonly [number, number] = [70, 140];
 /** How long the duck stays out. Drives both the timer and the peek animation. */
 const PEEK_MS = 9000;
 /**
@@ -72,23 +66,6 @@ type ShootingStar = {
   travelY: string;
 };
 
-const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
-
-function subscribeToMotion(onChange: () => void) {
-  const query = window.matchMedia(REDUCED_MOTION);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
-
-/** Live `prefers-reduced-motion`; assumes motion is fine while rendering on the server. */
-function useMotionAllowed() {
-  return !useSyncExternalStore(
-    subscribeToMotion,
-    () => window.matchMedia(REDUCED_MOTION).matches,
-    () => false,
-  );
-}
-
 function randomBetween([min, max]: readonly [number, number]) {
   return min + Math.random() * (max - min);
 }
@@ -116,16 +93,16 @@ function buildShower(): ShootingStar[] {
 }
 
 /**
- * Easter egg: after a long enough stay, a rubber duck leans in from a random
- * corner. Clicking it plays the quack; the page then rattles and the duck bolts
- * with it; and once the rattle dies down a long meteor shower crosses the sky.
+ * Easter egg: when the living sky calls on it, a rubber duck leans in from a
+ * random corner. Clicking it plays the quack; the page then rattles and the duck
+ * bolts with it; and once the rattle dies down a long meteor shower crosses the
+ * sky.
  *
- * The wait only advances while the tab is actually on screen, so a page left in
- * a background tab does not burn through it.
+ * When it shows up is decided by the shared clock in `sky-schedule`, which takes
+ * turns between the duck and the other sky events.
  */
 export function DuckEasterEgg() {
   const t = useTranslations("Duck");
-  const quackRef = useRef<HTMLAudioElement>(null);
   /** Whatever is due next for the duck: its retreat, or its exit after a quack. */
   const scheduleRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -139,25 +116,19 @@ export function DuckEasterEgg() {
   const motionOk = useMotionAllowed();
 
   useEffect(() => {
-    let waited = 0;
-    let target = randomBetween(FIRST_VISIT);
-
-    const tick = setInterval(() => {
-      if (document.visibilityState !== "visible") return;
-      waited += 1;
-      if (waited < target) return;
-
-      waited = 0;
-      target = randomBetween(NEXT_VISIT);
+    const stop = onSkyEvent("duck", () => {
+      // Fetched as the duck leans in, so the quack answers the click at once.
+      preloadSfx("duck");
+      clearTimeout(scheduleRef.current);
       setVisit({
         corner: Math.floor(Math.random() * CORNERS.length),
         leaving: false,
       });
       scheduleRef.current = setTimeout(() => setVisit(null), PEEK_MS);
-    }, 1000);
+    });
 
     return () => {
-      clearInterval(tick);
+      stop();
       clearTimeout(scheduleRef.current);
     };
   }, []);
@@ -186,11 +157,9 @@ export function DuckEasterEgg() {
   );
 
   const quack = () => {
-    const audio = quackRef.current;
-    if (audio) {
-      audio.currentTime = 0;
-      void audio.play().catch(() => {});
-    }
+    awardBadge("duck");
+
+    playSfx("duck");
 
     // The duck now leaves on the quack's schedule, not the peek timer's.
     clearTimeout(scheduleRef.current);
@@ -221,8 +190,6 @@ export function DuckEasterEgg() {
 
   return (
     <>
-      <audio ref={quackRef} src="/audio/duck.mp3" preload="auto" />
-
       {visit && spot && (
         // Clipping the overlay keeps the half-off-screen duck from widening the
         // page; the duck itself takes pointer events back.
