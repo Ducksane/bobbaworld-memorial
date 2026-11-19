@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { ChatBubble } from "./chat-bubble";
 
 /** How long a visit lasts: rising, waving, answering, sinking. Matches `bwStaffVisit`. */
 export const CAMEO_MS = 9000;
@@ -33,6 +34,11 @@ export type Cameo = {
   /**
    * What they answer: `called` when named, `help` when the staff at large is
    * called for. Each has a few lines in `Chat.replies`, one picked per visit.
+   * Each line ends on one of Habbo's Alt-code characters, which the chat font
+   * draws as the game's little icons, picked to fit the line: ± is a phone
+   * for being called, ¥ a star, | a heart, µ a coffee, º a lightning bolt,
+   * ¶ a light bulb for help, • a thumbs up, and ª the skull from the Bobba
+   * logo's speech bubble for the lines about BobbaWorld.
    */
   reply: "called" | "help";
   /** Picks the line, 0 to 1, rolled once so the answer holds for the visit. */
@@ -82,7 +88,7 @@ export function TheStaffCameo({ cameo, motionOk }: TheStaffCameoProps) {
     // clear of the audio player (64px tall, 20px off the bottom).
     <div
       key={cameo.id}
-      className="pointer-events-none fixed bottom-[96px] left-[max(12px,4vw)] z-30 h-[300px] w-[min(360px,calc(100vw-24px))] overflow-hidden"
+      className="pointer-events-none fixed bottom-[96px] left-[max(12px,4vw)] z-30 h-[300px] w-[min(440px,calc(100vw-24px))] overflow-hidden font-chat"
     >
       <div
         className={`absolute bottom-0 left-0 h-[220px] w-32 ${motionOk ? "animate-staff-visit" : ""}`}
@@ -110,20 +116,14 @@ export function TheStaffCameo({ cameo, motionOk }: TheStaffCameoProps) {
         )}
       </div>
 
-      <p
-        role="status"
-        className={`absolute bottom-[196px] left-[78px] w-max max-w-[min(270px,calc(100vw-110px))] border-2 border-night bg-paper px-3 py-1.5 text-[14px] leading-[1.35] text-night shadow-[3px_3px_0_rgba(5,11,22,.55)] outline outline-cream/25 ${
+      <ChatBubble
+        head={`/images/avatars/${cameo.look}-head.png`}
+        speaker={t("speaker", { name: cameo.name })}
+        text={reply}
+        className={`absolute bottom-[196px] left-[60px] w-max max-w-[min(370px,calc(100vw-84px))] ${
           motionOk ? "animate-staff-bubble" : ""
         }`}
-      >
-        <b className="font-semibold">{t("speaker", { name: cameo.name })}</b>{" "}
-        {reply}
-        {/* The bubble's tail, pointing down to the avatar's head. */}
-        <span
-          aria-hidden
-          className="absolute top-full left-3 size-1.5 border-2 border-t-0 border-night bg-paper"
-        />
-      </p>
+      />
     </div>
   );
 }

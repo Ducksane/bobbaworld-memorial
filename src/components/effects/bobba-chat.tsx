@@ -6,10 +6,11 @@ import { useMotionAllowed } from "@/hooks/use-motion-allowed";
 import { awardBadge } from "@/lib/badges";
 import { bobbaFilter } from "@/lib/bobba-filter";
 import { playSfx } from "@/lib/sfx";
+import { ChatBubble } from "./chat-bubble";
 import { CAMEO_MS, cameoFor, TheStaffCameo, type Cameo } from "./thestaff-cameo";
 
-/** Longest line the chat bar takes. */
-const MAX_LENGTH = 60;
+/** Longest line the chat bar takes, as in a Habbo room. */
+const MAX_LENGTH = 100;
 /** A line left alone this long sends itself. */
 const IDLE_SEND_MS = 2600;
 /** How long a bubble takes to float away. Matches `bwBubble`. */
@@ -100,11 +101,13 @@ export function BobbaChat() {
       if (!line) return;
 
       const { text, censored } = bobbaFilter(line);
-      playSfx("message");
+      const visit = cameoFor(line);
+      // A call for help rings like a new ticket on the moderators' tools, in
+      // place of the usual chat sound.
+      playSfx(visit?.reply === "help" ? "ticket" : "message");
       awardBadge("chat");
       if (censored) awardBadge("bobba");
 
-      const visit = cameoFor(line);
       if (visit) {
         awardBadge("summon");
         // Called again during a visit: the new one starts over from the floor.
@@ -194,23 +197,19 @@ export function BobbaChat() {
     <>
       <TheStaffCameo cameo={cameo} motionOk={motionOk} />
       {/* Sits just above the audio player, which is 64px tall and 20px off the bottom. */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[100px] z-30 flex justify-center px-4">
+      <div className="pointer-events-none fixed inset-x-0 bottom-[100px] z-30 flex justify-center px-4 font-chat">
         {bubbles.map((bubble) => (
-          <p
+          // The visitor speaks as the ghost: they have no avatar of their own.
+          <ChatBubble
             key={bubble.id}
-            role="status"
-            className={`absolute bottom-full mb-3 max-w-[min(calc(100vw-32px),420px)] border-2 border-night bg-paper px-3 py-1.5 text-[14px] leading-[1.35] break-words text-night shadow-[3px_3px_0_rgba(5,11,22,.55)] outline outline-cream/25 ${
+            head="/images/avatars/ghost-head.png"
+            speaker={t("you")}
+            text={bubble.text}
+            className={`absolute bottom-full mb-3 max-w-[min(calc(100vw-32px),420px)] ${
               motionOk ? "animate-bubble" : ""
             }`}
             style={{ marginLeft: bubble.drift }}
-          >
-            <b className="font-semibold">{t("you")}</b> {bubble.text}
-            {/* The bubble's tail, a single stepped notch. */}
-            <span
-              aria-hidden
-              className="absolute top-full left-5 size-1.5 border-2 border-t-0 border-night bg-paper"
-            />
-          </p>
+          />
         ))}
 
         {/* Flood control locks the bar; otherwise it shows the line being typed. */}

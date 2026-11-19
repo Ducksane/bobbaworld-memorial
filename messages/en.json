@@ -51,17 +51,19 @@
     "speaker": "{name}:",
     "replies": {
       "called": [
-        "Did someone call me?",
-        "Here I am!",
-        "Talking about me?",
-        "Yes?",
-        "Present!"
+        "Did someone call me? ±",
+        "Here I am! ¥",
+        "Talking about me? |",
+        "Yes? µ",
+        "Present! º",
+        "Always here for BobbaWorld! ª"
       ],
       "help": [
-        "Need help?",
-        "Any trouble?",
-        "Can I help?",
-        "Everything all right?"
+        "Need help? ¶",
+        "Any trouble? ±",
+        "Can I help? •",
+        "Everything all right? |",
+        "Welcome to BobbaWorld! ª"
       ]
     },
     "flood": "You’re typing too fast! Wait - {seconds, number} sec. to talk again."
@@ -73,8 +75,12 @@
   },
   "Badges": {
     "unlocked": "Badge unlocked",
+    "locked": "To discover",
+    "bonusUnlocked": "Bonus badge",
     "tally": "Badges {found, number}/{total, number}",
-    "unknown": "Badge to discover",
+    "bonusTally": "+{count, number} bonus",
+    "bonus": "Bonus",
+    "unknown": "???",
     "names": {
       "duck": "Friend of the ducks",
       "comet": "Comet chaser",

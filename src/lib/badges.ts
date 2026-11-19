@@ -26,11 +26,27 @@ export type BadgeId = (typeof BADGES)[number];
 const NEEDS_KEYBOARD: readonly BadgeId[] = ["chat", "summon", "bobba", "flood"];
 /** Badges for the sky's visual events, which do not run under reduced motion. */
 const NEEDS_MOTION: readonly BadgeId[] = ["comet", "constellation", "aurora"];
+/**
+ * Bonus badges: a nice surprise, never something to hunt for. The 404's is
+ * one — nothing on the site leads there. They stay out of the tally and only
+ * show once earned.
+ */
+const BONUS: readonly BadgeId[] = ["queue"];
+
+export function isBonus(id: BadgeId) {
+  return BONUS.includes(id);
+}
+
+/** The earned badges that count towards the tally, bonus ones left out. */
+export function countedBadges(found: readonly BadgeId[]) {
+  return found.filter((id) => !isBonus(id));
+}
 
 /**
- * The badges this visitor can actually earn on this device, so the tally does
- * not send anyone looking for one they can never find. A badge already earned
- * always counts. Browser-only: call it from an effect or an event handler.
+ * The badges the tally counts on this device: those this visitor can actually
+ * earn here, so nobody is sent looking for one they can never find, and never
+ * the bonus ones. A badge already earned always counts. Browser-only: call it
+ * from an effect or an event handler.
  */
 export function reachableBadges(found: readonly BadgeId[] = getBadges()) {
   // A mouse or trackpad means a computer, and so a keyboard; a touch screen
@@ -40,9 +56,10 @@ export function reachableBadges(found: readonly BadgeId[] = getBadges()) {
 
   return BADGES.filter(
     (id) =>
-      found.includes(id) ||
-      ((keyboard || !NEEDS_KEYBOARD.includes(id)) &&
-        (motion || !NEEDS_MOTION.includes(id))),
+      !isBonus(id) &&
+      (found.includes(id) ||
+        ((keyboard || !NEEDS_KEYBOARD.includes(id)) &&
+          (motion || !NEEDS_MOTION.includes(id)))),
   );
 }
 

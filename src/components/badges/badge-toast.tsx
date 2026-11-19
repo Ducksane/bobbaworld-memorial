@@ -2,9 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { getBadges, onBadgeAwarded, reachableBadges, type BadgeId } from "@/lib/badges";
+import {
+  countedBadges,
+  getBadges,
+  isBonus,
+  onBadgeAwarded,
+  reachableBadges,
+  type BadgeId,
+} from "@/lib/badges";
 import { useMotionAllowed } from "@/hooks/use-motion-allowed";
 import { msUntilAnswerEnds, playSfx } from "@/lib/sfx";
+import { BadgeImage } from "./badge-image";
 
 /** How long a toast stays up. Matches `bwToast`. */
 const TOAST_MS = 4600;
@@ -35,6 +43,7 @@ export function BadgeToast() {
   const motionOk = useMotionAllowed();
   const [queue, setQueue] = useState<Toast[]>([]);
   const current = queue.at(0);
+  const bonus = current !== undefined && isBonus(current.id);
   const hasNext = queue.length > 1;
   /** When the current toast came up, in `performance.now()` time. */
   const shownAt = useRef(0);
@@ -44,7 +53,11 @@ export function BadgeToast() {
 
     const stop = onBadgeAwarded((id) => {
       const found = getBadges();
-      const toast = { id, found: found.length, total: reachableBadges(found).length };
+      const toast = {
+        id,
+        found: countedBadges(found).length,
+        total: reachableBadges(found).length,
+      };
       const enqueue = () => setQueue((waiting) => [...waiting, toast]);
 
       // Checked once the click or key handler that earned the badge is done,
@@ -92,20 +105,23 @@ export function BadgeToast() {
       {current && (
         <div
           key={current.id}
-          className={`flex items-center gap-3.5 border border-lime/45 bg-[rgb(7_15_28_/_0.92)] py-3 pr-5 pl-3.5 shadow-[0_20px_60px_rgba(0,0,0,.5)] backdrop-blur-[18px] ${
+          className={`flex items-center gap-3.5 border ${bonus ? "border-aqua/50" : "border-lime/45"} bg-[rgb(7_15_28_/_0.92)] py-3 pr-5 pl-3.5 shadow-[0_20px_60px_rgba(0,0,0,.5)] backdrop-blur-[18px] ${
             motionOk ? "animate-toast" : ""
           }`}
         >
-          {/* A pixel medal: a lime square with its centre punched out. */}
-          <span
-            aria-hidden
-            className="grid size-7 flex-none place-items-center bg-lime shadow-[0_0_14px_rgba(108,194,74,.6)]"
-          >
-            <span className="size-2.5 bg-moss" />
-          </span>
+          <BadgeImage
+            id={current.id}
+            className={
+              bonus
+                ? "drop-shadow-[0_0_8px_rgba(46,196,196,.55)]"
+                : "drop-shadow-[0_0_8px_rgba(108,194,74,.55)]"
+            }
+          />
           <span className="flex min-w-0 flex-col gap-1">
-            <span className="font-pixel text-[9px] uppercase tracking-[.18em] text-lime">
-              {t("unlocked")}
+            <span
+              className={`font-pixel text-[9px] uppercase tracking-[.18em] ${bonus ? "text-aqua" : "text-lime"}`}
+            >
+              {bonus ? t("bonusUnlocked") : t("unlocked")}
             </span>
             <span className="text-[15px] leading-tight font-semibold text-paper">
               {t(`names.${current.id}`)}
@@ -115,7 +131,7 @@ export function BadgeToast() {
             aria-hidden
             className="ml-2 flex-none font-pixel text-[9px] tracking-[.14em] text-cream/45"
           >
-            {current.found}/{current.total}
+            {bonus ? t("bonus") : `${current.found}/${current.total}`}
           </span>
         </div>
       )}

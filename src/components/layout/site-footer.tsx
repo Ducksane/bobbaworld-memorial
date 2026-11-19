@@ -20,12 +20,14 @@ export function SiteFooter() {
       {/* The bottom padding clears the fixed audio player: 64px tall, 20px off the bottom. */}
       <Container className="flex flex-col gap-9 pt-20 pb-[140px]">
         <div className="flex flex-wrap items-center justify-between gap-x-10 gap-y-6 border-t border-cream/14 pt-9">
+          {/* Half, then two thirds, of the logo's 163px: simple ratios keep its
+              pixel-art avatars from smearing. */}
           <Image
             src="/images/logocolour.png"
             alt={t("logoAlt")}
             width={270}
             height={163}
-            className="h-14 w-auto"
+            className="h-[82px] w-auto md:h-[109px]"
           />
           <nav
             aria-label={t("navLabel")}

@@ -51,17 +51,19 @@
     "speaker": "{name} :",
     "replies": {
       "called": [
-        "Quelqu’un m’a appelé ?",
-        "Me voilà !",
-        "On parle de moi ?",
-        "Oui ?",
-        "Présent !"
+        "Quelqu’un m’a appelé ? ±",
+        "Me voilà ! ¥",
+        "On parle de moi ? |",
+        "Oui ? µ",
+        "Présent ! º",
+        "Toujours là pour BobbaWorld ! ª"
       ],
       "help": [
-        "Besoin d’aide ?",
-        "Un souci ?",
-        "Je peux t’aider ?",
-        "Tout se passe bien ?"
+        "Besoin d’aide ? ¶",
+        "Un souci ? ±",
+        "Je peux t’aider ? •",
+        "Tout se passe bien ? |",
+        "Bienvenue sur BobbaWorld ! ª"
       ]
     },
     "flood": "Tu tapes trop vite! Attends - {seconds, number} sec. pour reparler."
@@ -73,8 +75,12 @@
   },
   "Badges": {
     "unlocked": "Badge débloqué",
+    "locked": "À découvrir",
+    "bonusUnlocked": "Badge bonus",
     "tally": "Badges {found, number}/{total, number}",
-    "unknown": "Badge à découvrir",
+    "bonusTally": "+{count, number} bonus",
+    "bonus": "Bonus",
+    "unknown": "???",
     "names": {
       "duck": "Ami des canards",
       "comet": "Chasseur de comètes",
