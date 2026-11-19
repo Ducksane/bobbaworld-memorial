@@ -25,6 +25,11 @@ const SOUNDS = {
   aurora: { src: "/audio/sfx/aurora.mp3", volume: 0.4, audibleMs: 14000 },
   /** A constellation drawing itself. It comes unasked, so it stays soft. */
   constellation: { src: "/audio/sfx/constellation.mp3", volume: 0.45, audibleMs: 9600 },
+  /** Coins: the `:credits` and `:givecredits` chat commands. */
+  // An AAC file, as it was supplied: every browser plays it.
+  credits: { src: "/audio/sfx/credits.m4a", volume: 0.7, audibleMs: 324 },
+  /** Habbo's messenger alert: the `:removebadge` command, done. */
+  badgesRemoved: { src: "/audio/sfx/badges-removed.mp3", volume: 0.7, audibleMs: 261 },
   /** A moderator's new-ticket alert: a call for help, sent in the chat. */
   ticket: { src: "/audio/sfx/staff-ticket.mp3", volume: 0.7, audibleMs: 630 },
   /** The lights cutting out at the start of the blackout. */

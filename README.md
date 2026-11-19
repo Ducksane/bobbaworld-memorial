@@ -49,13 +49,15 @@ src/
 
 Tout est monté une fois par `src/components/effects/easter-eggs.tsx`.
 
-- **Le ciel vivant** : `src/lib/sky-schedule.ts` fait passer le canard toutes les une à deux minutes de page visible (toutes les trois à cinq minutes une fois attrapé), et tire au hasard, toutes les deux minutes environ, un événement parmi l’aurore, la constellation et la comète. En développement, `bwSky("aurora")` dans la console en déclenche un à la demande (`duck`, `aurora`, `constellation`, `comet`).
+- **Le ciel vivant** : `src/lib/sky-schedule.ts` fait passer le canard toutes les une à deux minutes de page visible (toutes les trois à cinq minutes une fois attrapé), et, une fois le canard attrapé seulement, tire au hasard toutes les deux minutes environ un événement parmi l’aurore, la constellation et la comète. En développement, `bwSky("aurora")` dans la console en déclenche un à la demande (`duck`, `aurora`, `constellation`, `comet`).
 - **Une étoile par joueur** : cliquer une étoile du fond affiche un pseudo. La liste est dans `src/content/players.ts` ; les membres marqués `staff` y sont signalés et débloquent un badge à part.
 - **Le filtre des gros mots** : taper au clavier ouvre une barre de chat ; les gros mots listés dans `src/lib/bobba-filter.ts` deviennent « #&@!% », comme sur BobbaWorld. Le badge s’appelle toujours « Bobba ! ».
 - **Le staff dans le chat** : écrire « TheStaff », « YingYang » ou « Fullmoon » fait monter leur avatar, qui salue et répond ; « staff » tout court fait venir l’un des trois au hasard, qui propose son aide. Le premier appel débloque le badge « Appel à l’aide ». La liste, les tenues et les noms sont dans `src/components/effects/thestaff-cameo.tsx`, les répliques dans `Chat.replies` des fichiers de messages, et les avatars (deux poses chacun) dans `public/images/avatars/`.
 - **La police du chat** : Ubuntu, avec les icônes de l’Ubuntu modifiée par Sulake tirée du client Habbo (`src/app/fonts/habbo-chat-icons.woff2`, réduite à ces seuls caractères) pour les symboles des codes Alt (¥ étoile, ª crâne, — note de musique, µ café, | cœur, ± téléphone, ¶ ampoule, º éclair, • pouce levé, ÷ pouce baissé…). Le staff en termine chacune de ses répliques. Elle n’est chargée qu’à l’ouverture du chat.
+- **La commande `:removebadge`** : tapée dans le chat, elle retire tous les badges (pratique pour rejouer).
+- **Les commandes `:credits` et `:givecredits`** : seules ou suivies de n’importe quoi, elles jouent le son des crédits.
 - **L’anti-flood** : quatre messages en moins de 6 s bloquent la barre de chat pendant 10 s, avec le badge « Floodeur pro ».
-- **Le black-out** : le point de l’entrée « 24 avril 2013 » de la chronologie éteint la page ; il se joue aussi seul chaque 24 avril.
+- **Le black-out** : le point de l’entrée « 24 avril 2013 » de la chronologie éteint la page ; il se joue aussi seul chaque 24 avril, une fois le canard attrapé.
 - **La file d’attente** : sur la page 404. C’est un badge bonus : il ne compte pas dans le total et n’apparaît qu’une fois gagné, puisque rien sur le site ne mène à la 404.
 - **Les images de badges** : de vrais badges Habbo (via habboassets.com, affichés à leur taille d’origine) dans `public/images/badges/`, un par badge du site ; la correspondance est décrite dans `src/components/badges/badge-image.tsx`.
 - **Les badges** : `src/lib/badges.ts` en garde un par easter egg trouvé dans `localStorage` ; le compteur apparaît dans le pied de page dès le premier.

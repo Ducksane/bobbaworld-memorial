@@ -126,6 +126,18 @@ export function onBadgeAwarded(listener: (id: BadgeId) => void) {
   };
 }
 
+/** Takes every badge away, as if the visitor had never found one. */
+export function resetBadges() {
+  cache = NONE;
+  unannounced = [];
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Nothing stored to remove.
+  }
+  for (const listener of changeListeners) listener();
+}
+
 /** Grants a badge. Does nothing if it has already been earned. */
 export function awardBadge(id: BadgeId) {
   const current = getBadges();

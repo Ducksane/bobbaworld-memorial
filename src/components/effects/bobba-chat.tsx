@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useMotionAllowed } from "@/hooks/use-motion-allowed";
-import { awardBadge } from "@/lib/badges";
+import { awardBadge, resetBadges } from "@/lib/badges";
 import { bobbaFilter } from "@/lib/bobba-filter";
 import { playSfx } from "@/lib/sfx";
 import { ChatBubble } from "./chat-bubble";
@@ -17,6 +17,10 @@ const IDLE_SEND_MS = 2600;
 const BUBBLE_MS = 9000;
 /** How long a bubble stays when it cannot float, under reduced motion. */
 const STILL_BUBBLE_MS = 4000;
+/** A hotel command, as typed in a Habbo room: takes every badge away. */
+const REMOVE_BADGES = /^:removebadges?$/i;
+/** `:credits` or `:givecredits`, alone or followed by anything: the coin sound. */
+const CREDITS = /^:(give)?credits(\s|$)/i;
 /** Flood control, as in a Habbo room: this many lines this fast… */
 const FLOOD_LINES = 4;
 const FLOOD_WINDOW_MS = 6000;
@@ -45,8 +49,12 @@ function isTyping(target: EventTarget | null) {
  * Easter egg: there is no text field on the page, but typing anyway opens a
  * chat bar. Enter sends the line up the screen as a speech bubble, the way
  * chat rose in a Habbo room — and, as it did on BobbaWorld, rude words come
- * out as "#&@!%". Sending too many lines too fast locks the bar for a while,
- * the way Habbo's flood control did. Naming TheStaff, YingYang or Fullmoon, or just saying "staff", brings one of the team up to answer.
+ * out as "#&@!%".
+ *
+ * Naming TheStaff, YingYang or Fullmoon, or just saying "staff", brings one of
+ * the team up to answer. Sending too many lines too fast locks the bar for a
+ * while, the way Habbo's flood control did. The hotel command `:removebadge`
+ * takes every badge away; `:credits` and `:givecredits` jingle coins.
  */
 export function BobbaChat() {
   const t = useTranslations("Chat");
@@ -58,11 +66,13 @@ export function BobbaChat() {
   const [muted, setMuted] = useState(0);
 
   // The key handler is bound once; these keep it reading the latest values.
+  const tRef = useRef(t);
   const draftRef = useRef("");
   const motionRef = useRef(motionOk);
   useEffect(() => {
     motionRef.current = motionOk;
-  }, [motionOk]);
+    tRef.current = t;
+  }, [motionOk, t]);
 
   useEffect(() => {
     let idle: ReturnType<typeof setTimeout> | undefined;
@@ -100,12 +110,26 @@ export function BobbaChat() {
       write("");
       if (!line) return;
 
-      const { text, censored } = bobbaFilter(line);
-      const visit = cameoFor(line);
+      // `:removebadge` is a command, not a chat line: the bubble reports it.
+      const command = REMOVE_BADGES.test(line);
+      if (command) resetBadges();
+
+      const { text, censored } = command
+        ? { text: tRef.current("badgesRemoved"), censored: false }
+        : bobbaFilter(line);
+      const visit = command ? null : cameoFor(line);
       // A call for help rings like a new ticket on the moderators' tools, in
       // place of the usual chat sound.
-      playSfx(visit?.reply === "help" ? "ticket" : "message");
-      awardBadge("chat");
+      playSfx(
+        command
+          ? "badgesRemoved"
+          : CREDITS.test(line)
+            ? "credits"
+            : visit?.reply === "help"
+              ? "ticket"
+              : "message",
+      );
+      if (!command) awardBadge("chat");
       if (censored) awardBadge("bobba");
 
       if (visit) {

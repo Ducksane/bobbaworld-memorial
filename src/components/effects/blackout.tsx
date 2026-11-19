@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motionAllowed } from "@/hooks/use-motion-allowed";
-import { awardBadge } from "@/lib/badges";
+import { awardBadge, getBadges } from "@/lib/badges";
 import { playSfx } from "@/lib/sfx";
 
 const TRIGGER_EVENT = "bw:blackout";
@@ -72,23 +72,28 @@ export function Blackout() {
     window.addEventListener(TRIGGER_EVENT, onTrigger);
 
     // Nobody asked for the anniversary one, so it stays away under reduced motion.
+    // A first anniversary blackout waits for the page to have focus, so its
+    // badge is not handed out to someone looking at another window.
+    const playAnniversary = () => {
+      try {
+        if (sessionStorage.getItem(SESSION_KEY)) return;
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        // No session storage: skip it rather than replay it on every page.
+        return;
+      }
+      run(true);
+    };
+    const onFocus = () => timers.push(setTimeout(playAnniversary, ANNIVERSARY_DELAY_MS));
+
     if (isAnniversary() && motionAllowed()) {
-      timers.push(
-        setTimeout(() => {
-          try {
-            if (sessionStorage.getItem(SESSION_KEY)) return;
-            sessionStorage.setItem(SESSION_KEY, "1");
-          } catch {
-            // No session storage: skip it rather than replay it on every page.
-            return;
-          }
-          run(true);
-        }, ANNIVERSARY_DELAY_MS),
-      );
+      if (document.hasFocus() || getBadges().includes("blackout")) onFocus();
+      else window.addEventListener("focus", onFocus, { once: true });
     }
 
     return () => {
       window.removeEventListener(TRIGGER_EVENT, onTrigger);
+      window.removeEventListener("focus", onFocus);
       timers.forEach(clearTimeout);
       delete root.dataset.blackout;
       running.current = false;

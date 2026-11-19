@@ -5,9 +5,14 @@
  *   the only way to its badge. Once the badge is earned it comes by less;
  * - a shared one that, every couple of minutes, hands the stage to a single
  *   random event: an aurora, a constellation or a comet. Only one of those is
- *   ever called at a time.
+ *   ever called at a time, and none before the duck has been caught: the duck
+ *   is the way in, and the events that award a badge by themselves wait for it.
  *
  * Each effect subscribes to its own kind and plays when called.
+ *
+ * While the page is not focused, an event whose badge has not been earned yet
+ * is held back — its countdown pauses — so nobody earns a badge, or misses
+ * one, while looking at another window.
  */
 import { getBadges, subscribeToBadges } from "@/lib/badges";
 
@@ -42,9 +47,16 @@ const duck: Timer = { waited: 0, target: 0 };
 const sky: Timer = { waited: 0, target: 0 };
 let lastSky: SkyEvent | null = null;
 let stopWatchingBadges: (() => void) | undefined;
+/** Whether the duck's capture has been seen by this clock, so it reacts once. */
+let caughtSeen = false;
 
 function duckCaught() {
   return getBadges().includes("duck");
+}
+
+/** May `kind` play now? Always with focus; without it, only once its badge is earned. */
+function allowed(kind: SkyEvent) {
+  return document.hasFocus() || getBadges().includes(kind);
 }
 
 function randomBetween([min, max]: Range) {
@@ -61,8 +73,8 @@ function due(timer: Timer, next: Range) {
 }
 
 function pickSky(): SkyEvent | null {
-  let kinds = (Object.keys(WEIGHTS) as (keyof typeof WEIGHTS)[]).filter((kind) =>
-    listeners.has(kind),
+  let kinds = (Object.keys(WEIGHTS) as (keyof typeof WEIGHTS)[]).filter(
+    (kind) => listeners.has(kind) && allowed(kind),
   );
   // Never the same event twice in a row, unless it is the only one listening.
   if (kinds.length > 1) kinds = kinds.filter((kind) => kind !== lastSky);
@@ -80,7 +92,7 @@ function tick() {
   // A page left in a background tab does not burn through the wait.
   if (document.visibilityState !== "visible") return;
 
-  if (due(duck, duckCaught() ? DUCK_CAUGHT : DUCK_NEXT)) {
+  if (allowed("duck") && due(duck, duckCaught() ? DUCK_CAUGHT : DUCK_NEXT)) {
     // The page is dark during the blackout: the duck waits for the lights.
     if (document.documentElement.dataset.blackout !== undefined) {
       duck.target = DUCK_RETRY;
@@ -88,6 +100,11 @@ function tick() {
       listeners.get("duck")?.();
     }
   }
+
+  // The sky's own events stay away until the duck has been caught; their clock
+  // only starts then. Without focus it pauses unless one of them may play.
+  if (!duckCaught()) return;
+  if (!(Object.keys(WEIGHTS) as SkyEvent[]).some(allowed)) return;
 
   if (due(sky, SKY_NEXT)) {
     const kind = pickSky();
@@ -105,10 +122,19 @@ export function onSkyEvent(kind: SkyEvent, play: () => void) {
       waited: 0,
       target: randomBetween(duckCaught() ? DUCK_CAUGHT : DUCK_FIRST),
     });
-    // The moment the duck is caught, its next visit moves to the slower pace.
+    caughtSeen = duckCaught();
     stopWatchingBadges = subscribeToBadges(() => {
-      if (!duckCaught()) return;
+      // Badges taken away (`:removebadge`): back to the start, duck first.
+      if (!duckCaught()) {
+        caughtSeen = false;
+        return;
+      }
+      if (caughtSeen) return;
+      caughtSeen = true;
+      // The moment the duck is caught: its next visit moves to the slower pace,
+      // and the sky's own events start their first countdown.
       duck.target = Math.max(duck.target, duck.waited + randomBetween(DUCK_CAUGHT));
+      Object.assign(sky, { waited: 0, target: randomBetween(SKY_FIRST) });
     });
     Object.assign(sky, { waited: 0, target: randomBetween(SKY_FIRST) });
     clock = setInterval(tick, 1000);
