@@ -54,7 +54,8 @@ function isTyping(target: EventTarget | null) {
  * Naming TheStaff, YingYang or Fullmoon, or just saying "staff", brings one of
  * the team up to answer. Sending too many lines too fast locks the bar for a
  * while, the way Habbo's flood control did. The hotel command `:removebadge`
- * takes every badge away; `:credits` and `:givecredits` jingle coins.
+ * takes every badge away; `:credits` and `:givecredits` jingle coins, without
+ * a bubble.
  */
 export function BobbaChat() {
   const t = useTranslations("Chat");
@@ -110,6 +111,18 @@ export function BobbaChat() {
       write("");
       if (!line) return;
 
+      // Every line sent counts towards flood control, commands included.
+      const now = Date.now();
+      sentAt = [...sentAt.filter((at) => now - at < FLOOD_WINDOW_MS), now];
+      const flooding = sentAt.length >= FLOOD_LINES;
+
+      // `:credits` and `:givecredits` only jingle coins: no bubble, no badge.
+      if (CREDITS.test(line)) {
+        playSfx("credits");
+        if (flooding) mute();
+        return;
+      }
+
       // `:removebadge` is a command, not a chat line: the bubble reports it.
       const command = REMOVE_BADGES.test(line);
       if (command) resetBadges();
@@ -118,17 +131,9 @@ export function BobbaChat() {
         ? { text: tRef.current("badgesRemoved"), censored: false }
         : bobbaFilter(line);
       const visit = command ? null : cameoFor(line);
-      // A call for help rings like a new ticket on the moderators' tools, in
-      // place of the usual chat sound.
-      playSfx(
-        command
-          ? "badgesRemoved"
-          : CREDITS.test(line)
-            ? "credits"
-            : visit?.reply === "help"
-              ? "ticket"
-              : "message",
-      );
+      // One sound per line: a command's or a call for help's own sound plays
+      // in place of the usual chat sound, never after it.
+      playSfx(command ? "badgesRemoved" : visit?.reply === "help" ? "ticket" : "message");
       if (!command) awardBadge("chat");
       if (censored) awardBadge("bobba");
 
@@ -140,7 +145,7 @@ export function BobbaChat() {
         staffLeaves = setTimeout(() => setCameo(null), CAMEO_MS);
       }
 
-      const id = Date.now();
+      const id = now;
       setBubbles((current) => [
         ...current,
         { id, text, drift: Math.round((Math.random() - 0.5) * 120) },
@@ -154,9 +159,7 @@ export function BobbaChat() {
       );
       fading.add(gone);
 
-      const now = Date.now();
-      sentAt = [...sentAt.filter((at) => now - at < FLOOD_WINDOW_MS), now];
-      if (sentAt.length >= FLOOD_LINES) mute();
+      if (flooding) mute();
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
